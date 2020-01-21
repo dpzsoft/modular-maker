@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>cmaker</AssemblyName>
+    <RootNamespace>cmaker</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="dpz3" Version="2.0.2001.42" />
+    <PackageReference Include="dpz3.Modular" Version="2.0.2001.15" />
+  </ItemGroup>
+
+</Project>
