@@ -9,21 +9,25 @@ namespace cmaker {
         // 复制文件夹
         static void MakerController(string pathSource, string pathTarget, string className, string route) {
 
+            Console.WriteLine($"[*] 查找目录 {pathSource} ...");
+
             // 生成控制器代码
             StringBuilder sb = new StringBuilder();
             sb.Append("using System;\r\n");
+            sb.Append("using System.Text;\r\n");
             sb.Append("using dpz3;\r\n");
             sb.Append("using dpz3.Modular;\r\n");
             sb.Append("\r\n");
             sb.Append($"namespace {className} {{\r\n");
             sb.Append("\r\n");
             sb.Append($"    [Modular(ModularTypes.Api, \"{route}\")]\r\n");
-            sb.Append($"    public class _Page : ApiControllerBase {{\r\n");
+            sb.Append($"    public class _Page : ControllerBase {{\r\n");
             sb.Append("\r\n");
 
             // 复制文件
-            string[] files = System.IO.Directory.GetFiles(pathSource);
+            string[] files = System.IO.Directory.GetFiles(pathSource,"*.aspx");
             foreach (var file in files) {
+                Console.WriteLine($"[*] 处理文件 {file} ...");
                 string name = System.IO.Path.GetFileNameWithoutExtension(file);
                 string html = dpz3.File.UTF8File.ReadAllText(file);
                 string code = dpz3.Modular.Parser.ParseAspxToCode(html, name);
@@ -32,12 +36,13 @@ namespace cmaker {
                 sb.Append("\r\n");
             }
 
-            sb.Append($"        }}\r\n");
             sb.Append($"    }}\r\n");
             sb.Append("}\r\n");
 
             // 输出文件内容
-            dpz3.File.UTF8File.WriteAllText($"{pathTarget}{it.SplitChar}{className}.cs", sb.ToString());
+            string pathClass = $"{pathTarget}{it.SplitChar}{className}.cs";
+            Console.WriteLine($"[+] 创建控制器 {pathClass} ...");
+            dpz3.File.UTF8File.WriteAllText(pathClass, sb.ToString());
 
             // 处理子文件夹
             string[] dirs = System.IO.Directory.GetDirectories(pathSource);
@@ -104,7 +109,7 @@ namespace cmaker {
                 System.IO.Directory.CreateDirectory(pathController);
                 return;
             }
-            MakerController(pathPages, pathController, "pages", "/");
+            MakerController(pathPages, pathController, "pages", "");
         }
 
         static void Main(string[] args) {

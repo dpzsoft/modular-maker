@@ -83,6 +83,17 @@ namespace mpack {
                 // 复制需要打包的文件到临时文件夹中
                 CopyFolder(pathRoot, pathOutputRoot);
             }
+            // 复制数据库定义文件夹
+            string pathXorm = $"{path}xorm";
+            if (System.IO.Directory.Exists(pathXorm)) {
+                string pathOutputXorm = $"{pathOutput}{it.SplitChar}xorm";
+                if (!System.IO.Directory.Exists(pathOutputXorm)) {
+                    Console.WriteLine($"[+] 创建目录 {pathOutputXorm} ...");
+                    System.IO.Directory.CreateDirectory(pathOutputXorm);
+                }
+                // 复制需要打包的文件到临时文件夹中
+                CopyFolder(pathXorm, pathOutputXorm);
+            }
             // 复制控制器
             string pathController = $"{path}controller{it.SplitChar}bin{it.SplitChar}Debug{it.SplitChar}netcoreapp3.1";
             if (System.IO.Directory.Exists(pathController)) {
