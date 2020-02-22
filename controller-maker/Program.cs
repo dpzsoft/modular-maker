@@ -20,12 +20,12 @@ namespace cmaker {
             sb.Append("\r\n");
             sb.Append($"namespace {className} {{\r\n");
             sb.Append("\r\n");
-            sb.Append($"    [Modular(ModularTypes.Api, \"{route}\")]\r\n");
-            sb.Append($"    public class _Page : ControllerBase {{\r\n");
+            sb.Append($"    [Modular(ModularTypes.Session, \"{route}\")]\r\n");
+            sb.Append($"    public class _Page : SessionControllerBase {{\r\n");
             sb.Append("\r\n");
 
             // 复制文件
-            string[] files = System.IO.Directory.GetFiles(pathSource,"*.aspx");
+            string[] files = System.IO.Directory.GetFiles(pathSource, "*.aspx");
             foreach (var file in files) {
                 Console.WriteLine($"[*] 处理文件 {file} ...");
                 string name = System.IO.Path.GetFileNameWithoutExtension(file);
@@ -48,7 +48,14 @@ namespace cmaker {
             string[] dirs = System.IO.Directory.GetDirectories(pathSource);
             foreach (var dir in dirs) {
                 string name = System.IO.Path.GetFileName(dir);
-                if (!name.StartsWith(".")) {
+                bool canScan = true;
+                // 排除一些工程文件
+                if (name.StartsWith(".")) canScan = false;
+                if (name == "bin") canScan = false;
+                if (name == "obj") canScan = false;
+                if (name == "packages") canScan = false;
+                if (name == "Properties") canScan = false;
+                if (canScan) {
                     string nameNew = $"{className}.{name}";
                     string routeNew = $"{route}/{name}";
                     //Console.WriteLine($"[+] 创建目录 {pathNew} ...");

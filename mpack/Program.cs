@@ -115,6 +115,14 @@ namespace mpack {
                 Console.WriteLine($"[-] 清理目录 {pathOutput} ...");
                 System.IO.Directory.Delete(pathOutput, true);
             }
+            // 生成脚本文件
+            string pathBatFile = $"{pathPackage}{it.SplitChar}{name}.bat";
+            string cmd = $"@echo off\r\n" +
+                $"cd ..\r\n" +
+                $".\\pm /name {name} /version {version}\r\n" +
+                $"pause";
+            dpz3.File.TextFile.WriteAllBytes(pathBatFile, System.Text.Encoding.ASCII.GetBytes(cmd));
+
         }
 
         static void Main(string[] args) {

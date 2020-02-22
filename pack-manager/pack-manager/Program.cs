@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO.Compression;
 using dpz3;
 
@@ -28,6 +29,99 @@ namespace mpack {
                     string pathNew = $"{pathTarget}{it.SplitChar}{name}";
                     Console.WriteLine($"[+] 增加拷贝文件 {pathNew} ...");
                     System.IO.File.Copy(file, pathNew, true);
+                }
+            }
+        }
+
+        // 安装或更新数据库
+        private static void UpdateDatabase(dpz3.db.Connection dbc, dpz3.XOrm.StandaloneTable table) {
+            // 定义表映射
+            var Xorms = dpz3.db.OrmMapper.Table("Xorms");
+            if (!dbc.CheckTable("Xorms")) {
+                if (table.Name == "Xorms") {
+                    Console.WriteLine($"[+] 安装数据表 {table.Name} ...");
+                    // 生成字段定义集合
+                    List<dpz3.db.SqlUnits.FieldDefine> list = new List<dpz3.db.SqlUnits.FieldDefine>();
+                    foreach (var field in table.Fields) {
+                        dpz3.db.SqlUnits.FieldDefine fieldDefine = new dpz3.db.SqlUnits.FieldDefine();
+                        fieldDefine.Name = field.Name;
+                        fieldDefine.Type = field.DataType;
+                        fieldDefine.Size = field.DataSize;
+                        fieldDefine.Float = field.DataFloat;
+                        list.Add(fieldDefine);
+                    }
+                    // 添加表格
+                    dbc.CreateTable(table.Name, list.ToArray());
+                    // 更新缓存信息
+                    var rowInsert = new dpz3.db.Row();
+                    rowInsert["Name"] = table.Name;
+                    rowInsert["Guid"] = Guid.NewGuid().ToString();
+                    rowInsert["Version"] = table.Version;
+                    rowInsert["Title"] = table.Title;
+                    rowInsert["Description"] = table.Description;
+                    dbc.Insert(Xorms, rowInsert);
+                } else {
+                    Console.WriteLine($"[!] 尚未找到Xorms表，请先安装xorm-basic包。");
+                    return;
+                }
+            } else {
+                // 判断表信息是否存在
+                var row = dbc.Select(Xorms).Where(Xorms["Name"] == table.Name).GetRow();
+                string rowVersion = "";
+                if (!row.IsEmpty) rowVersion = row["Version"];
+                if (rowVersion != table.Version) {
+                    // 判断表是否存在
+                    if (dbc.CheckTable(table.Name)) {
+                        Console.WriteLine($"[+] 更新数据表 {table.Name} ...");
+                        // 生成字段定义集合
+                        foreach (var field in table.Fields) {
+                            dpz3.db.SqlUnits.FieldDefine fieldDefine = new dpz3.db.SqlUnits.FieldDefine();
+                            fieldDefine.Name = field.Name;
+                            fieldDefine.Type = field.DataType;
+                            fieldDefine.Size = field.DataSize;
+                            fieldDefine.Float = field.DataFloat;
+                            // 判断字段是否存在
+                            if (dbc.CheckTableFiled(table.Name, field.Name)) {
+                                // 更新字段
+                                dbc.UpdateTableFiled(table.Name, field.Name, fieldDefine);
+                            } else {
+                                // 添加字段
+                                dbc.AddTableFiled(table.Name, fieldDefine);
+                            }
+                        }
+                    } else {
+                        Console.WriteLine($"[+] 创建数据表 {table.Name} ...");
+                        // 生成字段定义集合
+                        List<dpz3.db.SqlUnits.FieldDefine> list = new List<dpz3.db.SqlUnits.FieldDefine>();
+                        foreach (var field in table.Fields) {
+                            dpz3.db.SqlUnits.FieldDefine fieldDefine = new dpz3.db.SqlUnits.FieldDefine();
+                            fieldDefine.Name = field.Name;
+                            fieldDefine.Type = field.DataType;
+                            fieldDefine.Size = field.DataSize;
+                            fieldDefine.Float = field.DataFloat;
+                            list.Add(fieldDefine);
+                        }
+                        // 添加表格
+                        dbc.CreateTable(table.Name, list.ToArray());
+                    }
+                    // 操作表缓存信息
+                    if (row.IsEmpty) {
+                        // 添加表缓存信息
+                        var rowInsert = new dpz3.db.Row();
+                        rowInsert["Name"] = table.Name;
+                        rowInsert["Guid"] = Guid.NewGuid().ToString();
+                        rowInsert["Version"] = table.Version;
+                        rowInsert["Title"] = table.Title;
+                        rowInsert["Description"] = table.Description;
+                        dbc.Insert(Xorms, rowInsert).Exec();
+                    } else {
+                        // 更新表缓存信息
+                        var rowUpdate = new dpz3.db.Row();
+                        rowUpdate["Version"] = table.Version;
+                        rowUpdate["Title"] = table.Title;
+                        rowUpdate["Description"] = table.Description;
+                        dbc.Update(Xorms, rowUpdate).Where(Xorms["ID"] == row["ID"]).Exec();
+                    }
                 }
             }
         }
@@ -90,9 +184,29 @@ namespace mpack {
                             ZipFile.ExtractToDirectory(fileDown, folderInstall, true);
                             // 进行包的安装
                             string folderInstallRoot = $"{folderInstall}{it.SplitChar}wwwroot";
-                            if (System.IO.Directory.Exists(folderRoot)) {
+                            if (System.IO.Directory.Exists(folderInstallRoot)) {
                                 // 进行包内静态文件的复制
+                                Console.WriteLine("[*] 正在复制 wwwroot 文件夹 ...");
                                 CopyFolder(folderInstallRoot, folderRoot);
+                            }
+                            // 进行Xorm数据库安装更新
+                            string folderInstallXorm = $"{folderInstall}{it.SplitChar}xorm";
+                            if (System.IO.Directory.Exists(folderInstallXorm)) {
+                                // 进行包内静态文件的复制
+                                Console.WriteLine("[*] 正在进行数据库升级 ...");
+                                string folderConf = $"{path}conf";
+                                using (var db = dpz3.db.Database.LoadFromConf($"{folderConf}{it.SplitChar}db.cfg", "entity")) {
+                                    using (var dbc = new dpz3.db.Connection(db)) {
+                                        string[] fileXmls = System.IO.Directory.GetFiles(folderInstallXorm, "*.xml");
+                                        foreach (var file in fileXmls) {
+                                            Console.WriteLine($"[*] 正在检测数据库配置文件 {file} ...");
+                                            string txtXml = dpz3.File.UTF8File.ReadAllText(file, false);
+                                            using (var table = new dpz3.XOrm.StandaloneTable(txtXml)) {
+                                                UpdateDatabase(dbc, table);
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             // 更新版本号
                             package.Attr["version"] = version;
@@ -115,9 +229,28 @@ namespace mpack {
                     ZipFile.ExtractToDirectory(fileDown, folderInstall, true);
                     // 进行包的安装
                     string folderInstallRoot = $"{folderInstall}{it.SplitChar}wwwroot";
-                    if (System.IO.Directory.Exists(folderRoot)) {
+                    if (System.IO.Directory.Exists(folderInstallRoot)) {
                         // 进行包内静态文件的复制
                         CopyFolder(folderInstallRoot, folderRoot);
+                    }
+                    // 进行Xorm数据库安装更新
+                    string folderInstallXorm = $"{folderInstall}{it.SplitChar}xorm";
+                    if (System.IO.Directory.Exists(folderInstallXorm)) {
+                        // 进行包内静态文件的复制
+                        Console.WriteLine("[*] 正在进行数据库升级 ...");
+                        string folderConf = $"{path}conf";
+                        using (var db = dpz3.db.Database.LoadFromConf($"{folderConf}{it.SplitChar}db.cfg", "entity")) {
+                            using (var dbc = new dpz3.db.Connection(db)) {
+                                string[] fileXmls = System.IO.Directory.GetFiles(folderInstallXorm, "*.xml");
+                                foreach (var file in fileXmls) {
+                                    Console.WriteLine($"[*] 正在检测数据库配置文件 {file} ...");
+                                    string txtXml = dpz3.File.UTF8File.ReadAllText(file, false);
+                                    using (var table = new dpz3.XOrm.StandaloneTable(txtXml)) {
+                                        UpdateDatabase(dbc, table);
+                                    }
+                                }
+                            }
+                        }
                     }
                     isUpdate = true;
                 }
