@@ -120,6 +120,8 @@ namespace mpack {
             string cmd = $"@echo off\r\n" +
                 $"cd ..\r\n" +
                 $".\\pm /name {name} /version {version}\r\n" +
+                $"cd downloads\r\n" +
+                $"del {name}.bat\r\n" +
                 $"pause";
             dpz3.File.TextFile.WriteAllBytes(pathBatFile, System.Text.Encoding.ASCII.GetBytes(cmd));
 
