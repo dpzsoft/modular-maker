@@ -5,12 +5,12 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>cmaker</AssemblyName>
     <RootNamespace>cmaker</RootNamespace>
-    <Version>1.1.2002.3</Version>
+    <Version>1.2.2003.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="dpz3" Version="2.0.2001.45" />
-    <PackageReference Include="dpz3.Modular" Version="2.1.2002.17" />
+    <PackageReference Include="dpz3.Modular" Version="2.2.2003.29" />
   </ItemGroup>
 
 </Project>
