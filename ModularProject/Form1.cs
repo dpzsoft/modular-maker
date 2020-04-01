@@ -198,7 +198,7 @@ namespace ModularProject {
         public void SetWorkPath(string path) {
             it.WorkPath = path;
             if (it.WorkPath.EndsWith("\\")) it.WorkPath = it.WorkPath.Substring(0, it.WorkPath.Length - 1);
-            this.Text = $"{Application.ProductName} Ver:{Application.ProductVersion} - [{it.WorkPath}]";
+            
 
             // 创建工作文件夹
             if (!System.IO.Directory.Exists(it.WorkPath + it.Path_WorkFolder)) {
@@ -222,7 +222,18 @@ namespace ModularProject {
                 workBuildGroup["NameSpace"] = "Entity.Orm";
                 workCfg.Save();
             }
+            // 读取模板相关的配置
+            var templateGroup = workCfg["Template"];
+            if (!templateGroup.ContainsKey("Name")) {
+                templateGroup["Name"] = "default";
+                workCfg.Save();
+            }
+            var templateName = templateGroup["name"];
+            // 设置模板目录
+            it.LocalTemplateFolder = $"{it.LocalPath}{it.Path_TemplateFolder}\\{templateName}";
+            if (!System.IO.Directory.Exists(it.LocalTemplateFolder)) System.IO.Directory.CreateDirectory(it.LocalTemplateFolder);
 
+            this.Text = $"{Application.ProductName} Ver:{Application.ProductVersion} Template:{templateName} - [{it.WorkPath}]";
             this.LoadTree();
         }
 
@@ -276,9 +287,22 @@ namespace ModularProject {
             it.LocalPath = Application.StartupPath;
             if (!it.LocalPath.EndsWith("\\")) it.LocalPath += "\\";
 
-            // 模板目录
-            it.LocalTemplateFolder = it.LocalPath + it.Path_TemplateFolder;
-            if (!System.IO.Directory.Exists(it.LocalTemplateFolder)) System.IO.Directory.CreateDirectory(it.LocalTemplateFolder);
+            //// 获取系统配置
+            //string configPath = $"{it.LocalPath}ModularProject.cfg";
+            //string templateName = null;
+            //using (dpz3.File.ConfFile conf = new dpz3.File.ConfFile(it.LocalPath)) {
+            //    // 处理和模板相关的配置
+            //    var group = conf["template"];
+            //    if (!group.ContainsKey("name")) {
+            //        group["name"] = "default";
+            //        conf.Save();
+            //    }
+            //    templateName = group["name"];
+            //}
+
+            //// 模板目录
+            //it.LocalTemplateFolder = $"{it.LocalPath}{it.Path_TemplateFolder}\\{templateName}";
+            //if (!System.IO.Directory.Exists(it.LocalTemplateFolder)) System.IO.Directory.CreateDirectory(it.LocalTemplateFolder);
 
             // 设置标题
             this.Text = $"{Application.ProductName} Ver:{Application.ProductVersion}";

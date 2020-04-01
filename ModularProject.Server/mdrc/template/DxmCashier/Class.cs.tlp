@@ -1,0 +1,360 @@
+using System;
+using System.Collections.Generic;
+using dpz3;
+using dpz3.db;
+using dpz3.db.SqlStatements;
+using dpz3.db.SqlUnits;
+using dpz3.Modular;
+
+namespace Xorm {
+
+    /// <summary>
+    /// ${table.Title} 交互控制器
+    /// </summary>
+    public class ${table.Name} : JttpSessionControllerBase {
+
+        /// <summary>
+        /// ${table.Title} 字段映射器
+        /// </summary>
+        public class TableFields : dpz3.Object {
+
+            /// <summary>
+            /// 获取ID字段设定
+            /// </summary>
+            public TableField ID { get; private set; }
+
+        @table.Fields{
+            /// <summary>
+            /// 获取 ${field.Title} 字段设定
+            /// </summary>
+            public TableField ${field.Name} { get; private set; }
+        };
+
+            /// <summary>
+            /// 对象实例化
+            /// </summary>
+            public TableFields(OrmMapperTable table) {
+
+                // 初始化 ID 配置
+                this.ID = table["ID"];
+            @table.Fields{
+                // 初始化 ${field.Title} 配置
+                this.${field.Name} = table["${field.Name}"];};
+
+            }
+
+        }
+
+        /// <summary>
+        /// ${table.Title} 字段配置器
+        /// </summary>
+        public class Setting : dpz3.Object {
+
+            /// <summary>
+            /// 获取ID字段设定
+            /// </summary>
+            public ControllerFieldSetting ID { get; private set; }
+
+        @table.Fields{
+            /// <summary>
+            /// 获取 ${field.Title} 字段设定
+            /// </summary>
+            public ControllerFieldSetting ${field.Name} { get; private set; }
+        };
+
+            /// <summary>
+            /// 对象实例化
+            /// </summary>
+            public Setting() {
+
+                // 初始化 ID 配置
+                this.ID = new ControllerFieldSetting();
+            @table.Fields{
+                // 初始化 ${field.Title} 配置
+                this.${field.Name} = new ControllerFieldSetting();};
+
+            }
+
+        }
+
+        /// <summary>
+        /// 表名称
+        /// </summary>
+        public const string Table_Name = "${table.Name}";
+
+        /// <summary>
+        /// 获取 ${table.Title} 对象映射
+        /// </summary>
+        protected OrmMapperTable Table { get; private set; }
+
+        /// <summary>
+        /// 获取 ${table.Title} 字段对象映射集合
+        /// </summary>
+        protected TableFields Fields { get; private set; }
+
+        /// <summary>
+        /// 实例化一个 ${table.Title} 交互控制器
+        /// </summary>
+        public ${table.Name}() {
+            this.Table = OrmMapper.Table(Table_Name);
+            this.Fields = new TableFields(this.Table);
+        }
+
+        /// <summary>
+        /// 可重载的获取列表事件
+        /// </summary>
+        protected virtual IResult OnGetList(Setting setting) { return null; }
+
+        /// <summary>
+        /// 可重载的列表呈现事件
+        /// </summary>
+        protected virtual IResult OnGetListRender(Rows rows) { return null; }
+
+        /// <summary>
+        /// 可重载的列表查询事件
+        /// </summary>
+        protected virtual IResult OnGetListQuery(Select select) { return null; }
+
+        /// <summary>
+        /// 可重载的设置列表查询条件事件
+        /// </summary>
+        protected virtual Formula OnGetListQueryCondition() { return null; }
+
+        /// <summary>
+        /// 获取列表
+        /// </summary>
+        protected IResult GetList() {
+            // 定义数据库连接
+            var dbc = Host.Connection;
+            // 数据初始化
+            Setting setting = new Setting();
+            // 执行重载事件，并返回结果
+            IResult res = this.OnGetList(setting);
+            if (res != null) return res;
+            // 获取分页设置
+            int pageSize = Request.Int["pageSize"];
+            int page = Request.Int["page"];
+            string key = Request.Str["key"];
+            string order = Request.Str["order"];
+            string orderSort = Request.Str["orderSort"];
+            try {
+                // 新建字段集合
+                var fieilds = new List<dpz3.db.SqlUnits.TableField>();
+                // 添加获取字段
+                if (setting.ID.Enabled) fieilds.Add(Table["ID"]);
+            @table.Fields{
+                if (setting.${field.Name}.Enabled) fieilds.Add(Table["${field.Name}"]);};
+                // 设置查询
+                var select = dbc.Select(Table);
+                select.Columns(fieilds.ToArray());
+                // 执行查询事件，并返回结果
+                var wh = this.OnGetListQueryCondition();
+                if (!Equals(wh, null)) select.Where(wh);
+                // 判断是否为分页模式
+                if (pageSize > 0) {
+                    int rowCount =0;
+                    if (Equals(wh, null)){
+                        rowCount = dbc.Select(Table).Columns(dbc.Count(Table["ID"]).As("AllCount")).GetRow()["AllCount"].ToInteger();
+                    }else{
+                        rowCount = dbc.Select(Table).Columns(dbc.Count(Table["ID"]).As("AllCount")).Where(wh).GetRow()["AllCount"].ToInteger();
+                    }
+                    int pageCount = (int)Math.Ceiling(rowCount / (double)pageSize);
+                    if (page > pageCount) page = pageCount;
+                    if (page < 1) page = 1;
+                    select.Limit(Table["ID"], (page - 1) * pageSize, pageSize);
+                    var respData = Response.Data;
+                    respData.Number("Page", page);
+                    respData.Number("PageSize", pageSize);
+                    respData.Number("PageCount", pageCount);
+                    respData.Number("RowCount", rowCount);
+                }
+                // 设置简单排序信息
+                switch (orderSort) {
+                    case "asc": select.Asc(Table[order]); break;
+                    case "desc": select.Desc(Table[order]); break;
+                    default: break;
+                }
+                // 执行查询事件，并返回结果
+                IResult resQuery = this.OnGetListQuery(select);
+                if (resQuery != null) return resQuery;
+                // 执行查询并返回结果
+                var rows = select.GetRows();
+                // 执行呈送事件，并返回结果
+                IResult resRender = this.OnGetListRender(rows);
+                if (resRender != null) return resRender;
+                // 填充数据并返回
+                return RowsSuccess(rows);
+            } catch (Exception ex) {
+                return Error(ex.Message, 0, ex.ToString());
+            }
+
+        }
+
+        /// <summary>
+        /// 可重载的数据添加事件
+        /// </summary>
+        protected virtual IResult OnAddSave(Setting setting) { return null; }
+
+        /// <summary>
+        /// 可重载的数据添加事件
+        /// </summary>
+        protected virtual void OnAddSaved() { }
+
+        /// <summary>
+        /// 添加数据
+        /// </summary>
+        protected IResult AddSave() {
+            // 定义数据库连接
+            var dbc = Host.Connection;
+            // 初始化数据
+            Setting setting = new Setting();
+            // 执行重载事件，并返回结果
+            IResult res = this.OnAddSave(setting);
+            if (res != null) return res;
+            // 检查数据完整性
+        @table.Fields{
+            if (setting.${field.Name}.IsMust && Request.Str["${field.Name}"].IsNoneOrNull()) return Fail("${field.Title}不能为空");
+            if (setting.${field.Name}.Enabled && Request.Str["${field.Name}"].IsNull()) Request.Str["${field.Name}"] = "";};
+            try {
+                // 新建数据集合
+                var rowInsert = new dpz3.db.Row();
+                // 添加字段数据
+            @table.Fields{
+                if (setting.${field.Name}.Enabled) rowInsert["${field.Name}"] = Request.Str["${field.Name}"];};
+                // 执行添加
+                dbc.Insert(Table, rowInsert).Exec();
+                // 调用重载事件
+                this.OnAddSaved();
+                return Success();
+            } catch (Exception ex) {
+                return Error(ex.Message, 0, ex.ToString());
+            }
+
+        }
+
+        /// <summary>
+        /// 可重载的数据修改事件
+        /// </summary>
+        protected virtual IResult OnEditSave(Setting setting) { return null; }
+
+        /// <summary>
+        /// 可重载的数据修改事件
+        /// </summary>
+        protected virtual void OnEditSaved() { }
+
+        /// <summary>
+        /// 修改数据
+        /// </summary>
+        protected IResult EditSave() {
+            // 定义数据库连接
+            var dbc = Host.Connection;
+            // 初始化数据
+            Setting setting = new Setting();
+            // 判断主键是否设置
+            if (Request.Str["ID"].IsNoneOrNull()) return Fail("尚未设置主键值");
+            // 执行重载事件，并返回结果
+            IResult res = this.OnEditSave(setting);
+            if (res != null) return res;
+            // 检查数据完整性
+        @table.Fields{
+            if (setting.${field.Name}.IsMust && Request.Str["${field.Name}"].IsNoneOrNull()) return Fail("${field.Title}不能为空");
+            if (setting.${field.Name}.Enabled && Request.Str["${field.Name}"].IsNull()) Request.Str["${field.Name}"] = "";};
+            try {
+                // 新建数据集合
+                var rowUpdate = new dpz3.db.Row();
+                // 添加字段数据
+            @table.Fields{
+                if (setting.${field.Name}.Enabled) rowUpdate["${field.Name}"] = Request.Str["${field.Name}"];};
+                // 执行修改
+                dbc.Update(Table, rowUpdate).Where(Table["ID"] == Request.Str["ID"]).Exec();
+                // 调用重载事件
+                this.OnEditSaved();
+                return Success();
+            } catch (Exception ex) {
+                return Error(ex.Message, 0, ex.ToString());
+            }
+
+        }
+
+        /// <summary>
+        /// 可重载的数据删除事件
+        /// </summary>
+        protected virtual IResult OnDeleteSave() { return null; }
+
+        /// <summary>
+        /// 可重载的数据删除事件
+        /// </summary>
+        protected virtual void OnDeleteSaved() { }
+
+        /// <summary>
+        /// 删除数据
+        /// </summary>
+        protected IResult DeleteSave() {
+            // 定义数据库连接
+            var dbc = Host.Connection;
+            // 判断主键是否设置
+            if (Request.Str["ID"].IsNoneOrNull()) return Fail("尚未设置主键值");
+            // 执行重载事件，并返回结果
+            IResult res = this.OnDeleteSave();
+            if (res != null) return res;
+            try {
+                // 执行删除
+                dbc.Delete(Table).Where(Table["ID"] == Request.Str["ID"]).Exec();
+                // 调用重载事件
+                this.OnDeleteSaved();
+                return Success();
+            } catch (Exception ex) {
+                return Error(ex.Message, 0, ex.ToString());
+            }
+
+        }
+
+        /// <summary>
+        /// 可重载的勾选型数据修改事件
+        /// </summary>
+        protected virtual IResult OnCheckChangeSave() { return null; }
+
+        /// <summary>
+        /// 可重载的勾选型数据修改后事件
+        /// </summary>
+        protected virtual void OnCheckChangeSaved() { }
+
+        /// <summary>
+        /// 修改勾选型数据修改
+        /// </summary>
+        protected IResult CheckChangeSave() {
+            // 定义数据库连接
+            var dbc = Host.Connection;
+            // 判断主键是否设置
+            string id = Request.Str["ID"];
+            if (id.IsNoneOrNull()) return Fail("尚未设置主键值");
+            // 执行重载事件，并返回结果
+            IResult res = this.OnCheckChangeSave();
+            if (res != null) return res;
+            try {
+                // 获取表单信息
+                string field = Request.Str["field"];
+                if (field.IsNoneOrNull()) return Fail("尚未定义字段信息");
+                // 获取原有数据
+                var row = dbc.Select(Table).Columns(Table["ID"], Table[field]).Where(Table["ID"] == id).GetRow();
+                if (row.IsEmpty) return Fail("信息不存在");
+                // 判断并更改数据
+                if (row[field].ToInteger() > 0) {
+                    row[field] = "0";
+                    dbc.Update(Table, row, Table["ID"]).Exec();
+                    Response.Data.Number(field, 0);
+                } else {
+                    row[field] = "1";
+                    dbc.Update(Table, row, Table["ID"]).Exec();
+                    Response.Data.Number(field, 1);
+                }
+                // 数据修改后事件
+                this.OnCheckChangeSaved();
+                return Success();
+            } catch (Exception ex) {
+                return Error(ex.Message, 0, ex.ToString());
+            }
+        }
+
+    }
+}

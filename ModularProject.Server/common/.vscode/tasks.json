@@ -1,0 +1,45 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "03 - 使用mpack打包",
+            "type": "shell",
+            "command": "X:\\tools\\modular\\mpack\\mpack.exe",
+            "args": [
+                "/path",
+                "${workspaceRoot}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "01 - 控制器生成",
+            "type": "shell",
+            "command": "X:\\tools\\modular\\controller-maker\\cmaker.exe",
+            "args": [
+                "/path",
+                "${workspaceRoot}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "使用VS编辑Pages",
+            "type": "process",
+            "command": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\IDE\\devenv.exe",
+            "args": [
+                "${workspaceRoot}\\pages\\pages.sln"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "使用VS编辑Controller",
+            "type": "process",
+            "command": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\IDE\\devenv.exe",
+            "args": [
+                "${workspaceRoot}\\controller\\controller.sln"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}

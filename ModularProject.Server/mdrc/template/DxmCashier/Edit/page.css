@@ -1,0 +1,39 @@
+.x-line{padding:5px;}
+.x-liner{display:none;}
+.x-title{padding:5px 8px 0px;font-size:14px;}
+.x-title i{font-style:normal;text-decoration:none;color:#a00}
+.x-content{padding:0px 5px;}
+.x-content input[type=text],.x-content select,.x-content textarea{border:1px solid #ccc;padding:3px 5px;font-size:14px;border-radius:3px;}
+.x-content-img{position:relative;width:100px;height:100px;overflow:hidden;border:1px solid #ccc;border-radius:3px;}
+.x-content-img img{display:block;max-width:100%;max-height:100%;}
+.x-content-img i{display:block;position:absolute;z-index:1;bottom:0px;left:0px;width:100%;background-color:rgba(0,0,0,0.5);text-decoration:none;font-style:normal;font-size:12px;color:#fff;padding:3px;text-align:center;}
+.x-content-img i a{font-size:12px;color:#fff;text-decoration:none;}
+.x-content-img i a:hover{color:#ff6a00;}
+.x-check{width:100%;text-align:left;}
+.x-check a{display:inline-block;width:18px;height:18px;border:1px solid #ccc;line-height:15px;color:#006400;text-decoration:none;font-size:14px;text-align:center;border-radius:2px;overflow:hidden;}
+.x-check a span{line-height:15px;}
+.x-img{position:relative;overflow:visible;display:inline-block;}
+.x-img img{display:inline-block;min-width:100px;max-width:300px;height:100px;border:1px solid #ccc;border-radius:3px;cursor:pointer;}
+.x-img a{display:block;position:absolute;right:-6px;top:-6px;width:20px;height:20px;line-height:20px;border-radius:10px;font-size:12px;color:#fff;text-decoration:none;background:#990000;box-shadow:#990000 1px 1px 3px;text-align:center;}
+.x-img a:hover{background:#aa0000;box-shadow:#990000 1px 1px 3px;}
+.x-picker{border:1px solid #ccc;border-radius:3px;width:150px;}
+.x-picker a{display:block;padding:3px 5px;font-size:14px;width:100%;height:26px;line-height:20px;text-decoration:none;color:#0094ff;overflow:hidden;word-break:break-all}
+.x-picker a:hover{color:#ff6a00;}
+.x-day-picker{border:1px solid #ccc;border-radius:3px;width:150px;}
+.x-day-picker a{display:block;padding:3px 5px;font-size:14px;width:100%;height:26px;line-height:20px;text-decoration:none;color:#0094ff;overflow:hidden;word-break:break-all}
+.x-day-picker a:hover{color:#ff6a00;}
+.dig-body{width:100%;height:100%;overflow:hidden;background:#fff;position:relative;}
+.dig-tools{position:absolute;left:0px;top:0px;padding:3px;height:33px;background:linear-gradient(to bottom,#ebebeb,#ddd);width:100%;border-bottom:1px solid #ccc;}
+.dig-tools a{display:inline-block;color:#222;padding:3px 5px;margin-right:10px;font-size:14px;border-radius:4px;text-decoration:none;border-radius:2px;line-height:20px;}
+.dig-tools a:hover{color:#ff6a00;}
+.dig-tools a img{display:inline-block;vertical-align:top;height:20px;margin-right:5px;}
+.dig-form{padding:33px 0px 0px;width:100%;height:100%;}
+.dig-form-box{width:100%;height:100%;padding:10px;overflow:auto;}
+@table.Fields{
+.xform-line-${field.Name} { display:block; }};
+@table.Fields{
+.xform-liner-${field.Name} { display:none; }};
+@table.Fields{
+.xform-title-${field.Name} { display:block; }};
+@table.Fields{
+.xform-content-${field.Name} { display:block; }};

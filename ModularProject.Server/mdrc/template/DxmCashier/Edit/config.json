@@ -1,0 +1,17 @@
+{
+    "Name": "${table.Name}_Edit",
+    "Path": "/${package.name}/${table.Name}/edit/",
+    "Description": "",
+    "Script": "page.js",
+    "Page": "page.html",
+    "Style": "page.css",
+    "Images": {
+        "Save": "/dxm-cashier-icon/save.png",
+        "Cancel": "/dxm-cashier-icon/cancel.png"
+    },
+    "Type": "Vue",
+    "Vue": {
+        "Target": "Dialog",
+        "Element": ""
+    }
+}

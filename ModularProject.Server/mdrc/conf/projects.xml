@@ -1,0 +1,13 @@
+<xml>
+    <group name="ModularProject" title="模块化项目管理器">
+        <item name="common" title="公共组件" path="X:\Projects\modular\maker\ModularProject.Server\common" />
+        <item name="main" title="主模块" path="X:\Projects\modular\maker\ModularProject.Server\main" />
+        <item name="manage" title="管理模块" path="X:\Projects\modular\maker\ModularProject.Server\manage" />
+    </group>
+    <group name="DxmCashier" title="收银管理系统">
+        <item name="manager_docker" title="容器框架" path="X:\Projects\modular\dxm-cashier\manager_docker" />
+        <item name="manager_main" title="主界面" path="X:\Projects\modular\dxm-cashier\manager_main" />
+        <item name="manager_product" title="商品管理" path="X:\Projects\modular\dxm-cashier\manager_product" />
+        <item name="manager_purchases" title="采购管理" path="X:\Projects\modular\dxm-cashier\manager_purchases" />
+    </group>
+</xml>

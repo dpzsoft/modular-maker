@@ -1,0 +1,26 @@
+{
+  "Name": "${table.Name}_List",
+  "Path": "/${package.name}/${table.Name}/list/",
+  "Description": "",
+  "Script": "page.js",
+  "Page": "page.html",
+  "Style": "page.css",
+  "Images": {
+    "Back": "/dxm-cashier-icon/goback.png",
+    "Add": "/dxm-cashier-icon/add.png",
+    "Edit": "/dxm-cashier-icon/edit.png",
+    "Delete": "/dxm-cashier-icon/delete.png",
+    "Refresh": "/dxm-cashier-icon/refresh-b.png",
+    "Article": "/dxm-cashier-icon/article.png",
+    "Shop": "/dxm-cashier-icon/shop.png",
+    "Clear": "/dxm-cashier-icon/clear.png",
+    "Up": "/dxm-cashier-icon/up.png",
+    "Down": "/dxm-cashier-icon/down.png",
+    "None": "/dxm-cashier-icon/broken.png"
+  },
+  "Type": "Vue",
+  "Vue": {
+    "Target": "Page",
+    "Element": ""
+  }
+}

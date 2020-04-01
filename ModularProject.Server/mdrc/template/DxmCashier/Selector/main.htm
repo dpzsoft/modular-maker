@@ -1,0 +1,12 @@
+<div class="select-body">
+    <div class="select-tools">
+        <s><input type="text" placeholder="输入搜索关键词" v-model="search.input" v-on:keyup.13="onSearch" /></s>
+        <p>输入关键词后回车筛选，当前根据关键词"<span>{{search.key}}</span>"筛选结果</p>
+    </div>
+    <div class="select-list-page">
+        <div class="pg-list">
+            <xorm src="orm.xml" type="list"></xorm>
+            <include src="/wwwroot/shared/pages.htm"></include>
+        </div>
+    </div>
+</div>

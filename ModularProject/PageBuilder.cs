@@ -1002,6 +1002,20 @@ namespace ModularProject {
 
                                                 break;
                                             #endregion
+                                            // 呈现为输入框
+                                            case "input":
+                                                #region [=====呈现为勾选框=====]
+
+                                                // 定义勾选状态标签
+                                                var input = docx.CreateElement("input");
+                                                input.IsSingle = true;
+                                                td.Children.Add(input);
+                                                input.Attr["name"] = $"{fldName}";
+                                                input.Attr["type"] = "text";
+                                                input.Attr["v-model"] = $"row.{fldName}";
+
+                                                break;
+                                            #endregion
                                             // 呈现为自定义HTML
                                             case "html":
                                                 // 读取字段html定义文件
@@ -1186,6 +1200,33 @@ namespace ModularProject {
 
                                                 checkLink.Attr["href"] = "javascript:;";
                                                 checkLink.Attr["v-on:click"] = $"onChecked($event,'{fldName}')";
+
+                                                // 定义勾选状态标签
+                                                var checkSpan = docx.CreateElement("span");
+                                                checkLink.Children.Add(checkSpan);
+                                                checkSpan.Attr["v-if"] = $"form.{fldName}===1||form.{fldName}==='1'";
+                                                checkSpan.InnerHTML = "√";
+
+                                                break;
+                                            #endregion
+                                            // 呈现为日期框
+                                            case "day":
+                                                #region [=====呈现为勾选框=====]
+                                                var dateBox = docx.CreateElement("div");
+                                                eleContent.Children.Add(dateBox);
+
+                                                // 填充图像容器定义内容
+                                                foreach (var key in xmlInterfaceCheck.Attr.Keys) {
+                                                    if (key != "tag-name")
+                                                        checkBox.Attr[key] = xmlInterfaceCheck.Attr[key];
+                                                }
+
+                                                // 定义超链接
+                                                var checkLink = docx.CreateElement("a");
+                                                checkBox.Children.Add(checkLink);
+
+                                                checkLink.Attr["href"] = "javascript:;";
+                                                checkLink.Attr["v-on:click"] = $"onDayPicked($event,'{fldName}')";
 
                                                 // 定义勾选状态标签
                                                 var checkSpan = docx.CreateElement("span");

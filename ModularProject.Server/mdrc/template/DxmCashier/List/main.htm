@@ -1,0 +1,51 @@
+<div class="pg-body">
+    <!--带来源的页面-->
+    <div v-if="referrer.url!==''" class="pg-nav">
+        <div class="pg-nav-box"><img v-bind:src="Images.Back" />
+            <div class="pg-nav-back"><a href="javascript:;" v-on:click="onBack">返回</a></div>
+            <div class="pg-nav-title">{{referrer.title}}&nbsp;-&nbsp;{{title}}</div>
+        </div>
+    </div>
+    <!--不带来源的页面-->
+    <div v-if="referrer.url===''" class="pg-nav">
+        <div class="pg-nav-box">
+            <div class="pg-nav-title">{{title}}</div>
+        </div>
+    </div>
+    <div class="pg-tools">
+        <i v-if="buttons.add"><a href="javascript:;" v-on:click="onAdd">添加</a></i>
+        <s v-if="buttons.refresh"><a href="javascript:;" v-on:click="onRefresh">刷新列表</a></s>
+        <template v-if="search.enable">
+            <s v-if="!search.worked&&search.hasDate">|</s>
+            <p v-if="!search.worked&&search.hasDate">起止日期：<span v-on:click="onSelectDateStart"
+                    style="cursor: pointer;">{{search.start}}</span>&nbsp;至&nbsp;<span v-on:click="onSelectDateEnd"
+                    style="cursor: pointer;">{{search.end}}</span></p>
+            <s>|</s>
+            <s v-if="!search.worked"><input type="text" placeholder="输入搜索关键词" name="search-key" v-model="search.input"
+                    v-on:keyup.13="onSearch" /></s>
+            <i v-if="!search.worked"><a href="javascript:;" v-on:click="onSearch">搜索</a></i>
+            <i v-if="!search.worked"><a href="javascript:;" v-on:click="onSearchReset">重置</a></i>
+            <p v-if="search.worked">当前显示为搜索"<span
+                    v-if="search.hasDate">{{search.start}}至{{search.end}},</span><span>{{search.key}}</span>"的结果，<a
+                    href="javascript:;" v-on:click="onSearchClear">清除搜索</a></p>
+        </template>
+    </div>
+    <div class="pg-filter" v-if="filters.length>0">
+        <div class="pg-filter-box">
+            <div class="pg-filter-line" v-for="rowfilter in filters" v-bind:key="rowfilter.Name">
+                <p>{{rowfilter.Text}}：</p>
+                <template v-for="row in rowfilter.Items" v-bind:key="row.Value">
+                    <i v-if="filter[rowfilter.Name]!==row.Value"><a href="javascript:;"
+                            v-on:click="onFilter($$event,rowfilter.Name,row.Value)">{{row.Text}}</a></i>
+                    <s v-if="filter[rowfilter.Name]===row.Value">{{row.Text}}</s>
+                </template>
+            </div>
+        </div>
+    </div>
+    <div class="pg-list-page">
+        <div class="pg-list">
+            <xorm src="orm.xml" type="list"></xorm>
+            <include src="/wwwroot/shared/pages.htm"></include>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,182 @@
+html, body {
+    background: #fff;
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
+    font-size: 14px;
+    width: 100%;
+    height: 100%;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 微软雅黑;
+}
+
+.clear {
+    clear: both;
+}
+
+.left {
+    float: left;
+    width: 220px;
+    height: 100%;
+    background: #101525;
+    color: #fff;
+    overflow: hidden;
+}
+
+.right {
+    float: right;
+    width: calc(100% - 220px);
+    height: 100%;
+}
+
+.logo {
+    width: 220px;
+    height: 110px;
+    overflow: hidden;
+    padding: 10px 16px 0px;
+}
+
+.logo img {
+    display: block;
+    width: 100%;
+}
+
+.menu {
+    width: 220px;
+    height: 100%;
+    overflow: auto;
+}
+
+.menu dl {
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+}
+
+.menu dt {
+    display: block;
+    width: 100%;
+    padding: 0px 5px 0px 5px;
+    margin: 0px;
+    background: #2c3346;
+    text-decoration: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    height: 40px;
+}
+
+.menu dt s {
+    display: block;
+    float: left;
+    padding: 12px 0px 12px 5px;
+    font-size: 14px;
+    line-height: 16px;
+    text-decoration: none;
+}
+
+.menu dt s img {
+    display: block;
+    float: left;
+    height: 16px;
+}
+
+.menu dd {
+    display: block;
+    width: 100%;
+    padding: 5px 5px 5px 29px;
+    margin: 0px;
+    text-decoration: none;
+    background: #22293c;
+    color: #fff;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.header {
+    width: 100%;
+    height: 50px;
+    background: #e0ebff;
+    color: #333;
+}
+
+.switch {
+    float: left;
+}
+
+.switch a {
+    display: block;
+    padding: 5px 10px;
+    line-height: 40px;
+    height: 50px;
+    text-decoration: none;
+    color: #333;
+}
+
+.switch a:hover {
+    background: #0094ff;
+    color: #fff;
+}
+
+.switch_icon {
+    float: left;
+    padding: 7px 7px;
+}
+
+.switch_icon img {
+    display: block;
+    height: 26px;
+}
+
+.switch_title {
+    float: left;
+    line-height: 40px;
+}
+
+.exit {
+    float: right;
+}
+
+.exit a {
+    display: block;
+    padding: 5px 10px;
+    line-height: 40px;
+    height: 50px;
+    text-decoration: none;
+    color: #fff;
+}
+
+.exit a:hover {
+    background: #0094ff;
+    color: #fff
+}
+
+.exit img {
+    display: block;
+    padding: 10px 10px 0px;
+    height: 30px;
+}
+
+.user {
+    float: right;
+}
+
+.user_info {
+    padding: 5px 10px 0px;
+    line-height: 40px;
+}
+
+.frame {
+    width: 100%;
+    height: calc(100% - 50px);
+}
+
+.frame iframe {
+    width: 100%;
+    height: 100%;
+    border: 0px;
+}

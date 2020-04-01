@@ -1,0 +1,25 @@
+{
+  "Name": "${table.Name}_Selector",
+  "Path": "/${package.name}/${table.Name}/selector/",
+  "Description": "",
+  "Script": "page.js",
+  "Page": "page.html",
+  "Style": "page.css",
+  "Images": {
+    "Add": "/dxm-cashier-icon/add.png",
+    "Edit": "/dxm-cashier-icon/edit.png",
+    "Delete": "/dxm-cashier-icon/delete.png",
+    "Refresh": "/dxm-cashier-icon/refresh-b.png",
+    "App": "/dxm-cashier-icon/APP3.png",
+    "Change": "/dxm-cashier-icon/change.png",
+    "Html": "/dxm-cashier-icon/html.png",
+    "Check": "/dxm-cashier-icon/check.png",
+    "None": "/dxm-cashier-icon/broken.png"
+  },
+  "Type": "Vue",
+  "Target": "Dialog2",
+  "Vue": {
+    "Target": "Dialog2",
+    "Element": ""
+  }
+}

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <RootNamespace>ModularProject.Chromely</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
+    <StartupObject>ModularProject.Chromely.Program</StartupObject>
+    <ApplicationIcon>client.ico</ApplicationIcon>
+    <Product>模块化项目管理器</Product>
+    <Version>1.0.2003.1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Chromely" Version="5.0.77" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="app\chromely.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
+</Project>

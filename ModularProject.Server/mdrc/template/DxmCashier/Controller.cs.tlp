@@ -1,0 +1,179 @@
+﻿using System;
+using System.Collections.Generic;
+using dpz3;
+using dpz3.db;
+using dpz3.db.SqlStatements;
+using dpz3.db.SqlUnits;
+using dpz3.Modular;
+
+namespace control {
+
+    /// <summary>
+    /// ${table.Title}
+    /// </summary>
+    [Modular(ModularTypes.SessionApi, "/Api/${table.Name}")]
+    public class ${table.Name}Controller : Xorm.${table.Name} {
+
+        /// <summary>
+        /// 对象实例化
+        /// </summary>
+        public ${table.Name}Controller() : base() { }
+
+        #region [=====事件重载=====]
+
+        // 处理列表获取
+        protected override IResult OnGetList(Setting setting) {
+            // 验证登录
+            if (!Session.Enable) return Fail("缺少登录信息或登录信息已失效");
+            long uid= Session.GetValue("UserID").ToLong();
+            if (uid <= 0) return Fail("缺少登录信息或登录信息已失效");
+            // 添加默认排序
+            if (Request.Str["orderSort"].IsNoneOrNull()) {
+                Request.Str["order"] = "ID";
+                Request.Str["orderSort"] = "asc";
+            }
+            return base.OnGetList(setting);
+        }
+
+        // 列表查询
+        protected override IResult OnGetListQuery(Select select) {
+            return base.OnGetListQuery(select);
+        }
+
+        // 设置查询条件
+        protected override Formula OnGetListQueryCondition() {
+            dpz3.db.SqlUnits.Formula wh = null;
+            // 设置关键字查询
+            /*
+            if (!Request.Str["opt-search-key"].IsNoneOrNull()) {
+                string key = Request.Str["opt-search-key"];
+                wh = Table["Name"].Like($$"%{key}%") | Table["Initials"].Like($$"%{key}%");
+            }
+            */
+            // 根据数据筛选
+            /*
+            if (!Request.Str["data-PublisherID"].IsNoneOrNull()) {
+                if (Equals(wh, null)) {
+                    wh = Table["PublisherID"] == Request.Str["data-PublisherID"];
+                } else {
+                    wh = wh & Table["PublisherID"] == Request.Str["data-PublisherID"];
+                }
+            }
+            */
+            return wh;
+        }
+
+        // 列表输出
+        protected override IResult OnGetListRender(Rows rows) {
+            return base.OnGetListRender(rows);
+        }
+
+        // 处理添加保存
+        protected override IResult OnAddSave(Setting setting) {
+            // 验证登录
+            if (!Session.Enable) return Fail("缺少登录信息或登录信息已失效");
+            long uid= Session.GetValue("UserID").ToLong();
+            if (uid <= 0) return Fail("缺少登录信息或登录信息已失效");
+            // 设置字段保存规则
+            // setting.Name.IsMust = true;
+            // 内容填充处理
+
+            return base.OnAddSave(setting);
+        }
+
+        // 处理添加保存后事件
+        protected override void OnAddSaved() {}
+
+        // 处理修改保存
+        protected override IResult OnEditSave(Setting setting) {
+            // 验证登录
+            if (!Session.Enable) return Fail("缺少登录信息或登录信息已失效");
+            long uid= Session.GetValue("UserID").ToLong();
+            if (uid <= 0) return Fail("缺少登录信息或登录信息已失效");
+            // 设置字段保存规则
+            // setting.Name.IsMust = true;
+            // 内容填充处理
+
+            return base.OnEditSave(setting);
+        }
+
+        // 处理添加保存后事件
+        protected override void OnEditSaved() {}
+
+        // 处理勾选修改保存
+        protected override IResult OnCheckChangeSave() {
+            // 验证登录
+            if (!Session.Enable) return Fail("缺少登录信息或登录信息已失效");
+            long uid= Session.GetValue("UserID").ToLong();
+            if (uid <= 0) return Fail("缺少登录信息或登录信息已失效");
+            return base.OnCheckChangeSave();
+        }
+
+        // 处理勾选修改后保存
+        protected override void OnCheckChangeSaved() {
+            base.OnCheckChangeSaved();
+        }
+
+        // 处理删除保存
+        protected override IResult OnDeleteSave() {
+            // 验证登录
+            if (!Session.Enable) return Fail("缺少登录信息或登录信息已失效");
+            long uid= Session.GetValue("UserID").ToLong();
+            if (uid <= 0) return Fail("缺少登录信息或登录信息已失效");
+            return base.OnDeleteSave();
+        }
+
+        // 处理添加保存后事件
+        protected override void OnDeleteSaved() {}
+
+        #endregion
+
+        #region [=====标准接口事件=====]
+
+        /// <summary>
+        /// 获取列表
+        /// </summary>
+        /// <returns></returns>
+        [Modular(ModularTypes.Post, "GetList")]
+        public IResult GetListByPost() { return base.GetList(); }
+
+        /// <summary>
+        /// 添加数据
+        /// </summary>
+        /// <returns></returns>
+        [Modular(ModularTypes.Post, "AddSave")]
+        public IResult AddSaveByPost() { return base.AddSave(); }
+
+        /// <summary>
+        /// 添加数据
+        /// </summary>
+        /// <returns></returns>
+        [Modular(ModularTypes.Post, "EditSave")]
+        public IResult EditSaveByPost() { return base.EditSave(); }
+
+        /// <summary>
+        /// 添加数据
+        /// </summary>
+        /// <returns></returns>
+        [Modular(ModularTypes.Post, "DeleteSave")]
+        public IResult DeleteSaveByPost() { return base.DeleteSave(); }
+
+        /// <summary>
+        /// 添加数据
+        /// </summary>
+        /// <returns></returns>
+        [Modular(ModularTypes.Post, "CheckChangeSave")]
+        public IResult CheckChangeSaveByPost() { return base.CheckChangeSave(); }
+
+        #endregion
+
+        #region [=====后台操作事件=====]
+
+        #endregion
+
+        #region [=====前端API接口=====]
+
+        #endregion
+
+    }
+}
