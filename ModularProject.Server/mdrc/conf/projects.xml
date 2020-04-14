@@ -6,8 +6,14 @@
     </group>
     <group name="DxmCashier" title="收银管理系统">
         <item name="manager_docker" title="容器框架" path="X:\Projects\modular\dxm-cashier\manager_docker" />
-        <item name="manager_main" title="主界面" path="X:\Projects\modular\dxm-cashier\manager_main" />
-        <item name="manager_product" title="商品管理" path="X:\Projects\modular\dxm-cashier\manager_product" />
-        <item name="manager_purchases" title="采购管理" path="X:\Projects\modular\dxm-cashier\manager_purchases" />
+        <item name="manager_barcode" title="条形码管理" path="X:\Projects\modular\dxm-cashier\manager_barcode" />
+        <item name="manager_login" title="后台登录" path="X:\Projects\modular\dxm-cashier\manager_login" />
+        <item name="manager_main" title="后台主界面" path="X:\Projects\modular\dxm-cashier\manager_main" />
+        <item name="manager_product" title="后台商品管理" path="X:\Projects\modular\dxm-cashier\manager_product" />
+        <item name="manager_purchases" title="后台采购管理" path="X:\Projects\modular\dxm-cashier\manager_purchases" />
+        <item name="manager_cash" title="后台收支管理" path="X:\Projects\modular\dxm-cashier\manager_cash" />
+        <item name="manager_user_product" title="后台授权产品管理" path="X:\Projects\modular\dxm-cashier\manager_user_product" />
+        <item name="client_login" title="收银端登录" path="X:\Projects\modular\dxm-cashier\client_login" />
+        <item name="client_sales" title="收银端销售管理" path="X:\Projects\modular\dxm-cashier\client_sales" />
     </group>
 </xml>

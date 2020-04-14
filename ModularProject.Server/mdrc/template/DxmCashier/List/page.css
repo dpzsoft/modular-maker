@@ -24,7 +24,7 @@
 .pg-nav-title{display:inline-block;vertical-align:top;padding:0 10px;border-left:2px solid #88b7e0;font-size:14px;height:20px;line-height:20px}
 .pg-tools{padding:20px 20px 0}
 .pg-tools i,.pg-tools p,.pg-tools s{display:inline-block;vertical-align:top;margin:0;margin-right:10px;padding:0;font-style:normal;text-decoration:none;line-height:26px;color:#ccc}
-.pg-tools i a{display:block;width:90px;height:30px;color:#fff;font-size:14px;background:#09c;text-decoration:none;line-height:30px;text-align:center}
+.pg-tools i a{display:block;min-width:90px;height:30px;color:#fff;font-size:14px;background:#09c;text-decoration:none;line-height:30px;text-align:center;padding:0 10px}
 .pg-tools i a:hover{background:#28b5d6}
 .pg-tools s a{display:block;width:90px;height:30px;color:#222;font-size:14px;background:#fff;border:1px solid #ddd;text-decoration:none;line-height:28px;text-align:center}
 .pg-tools s a:hover{color:#09c;border:1px solid #09c}

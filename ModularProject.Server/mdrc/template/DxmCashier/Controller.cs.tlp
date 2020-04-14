@@ -14,19 +14,39 @@ namespace control {
     [Modular(ModularTypes.SessionApi, "/Api/${table.Name}")]
     public class ${table.Name}Controller : Xorm.${table.Name} {
 
+        #region [=====全局变量=====]
+
+        // 当前登录用户ID
+        private long _user_id;  
+
+        #endregion
+
         /// <summary>
         /// 对象实例化
         /// </summary>
         public ${table.Name}Controller() : base() { }
 
+        // 检测合法性
+        private IResult CheckValidity(){
+            // 验证登录
+            if (!Session.Enable) return Fail("缺少登录信息或登录信息已失效");
+            _user_id= Session.GetValue("UserID").ToLong();
+            if (_user_id <= 0) return Fail("缺少登录信息或登录信息已失效");
+            return null;
+        }
+
+        // 数据行呈现处理
+        private void RowRender(Row row){
+            // 处理代码
+        }
+
         #region [=====事件重载=====]
 
         // 处理列表获取
         protected override IResult OnGetList(Setting setting) {
-            // 验证登录
-            if (!Session.Enable) return Fail("缺少登录信息或登录信息已失效");
-            long uid= Session.GetValue("UserID").ToLong();
-            if (uid <= 0) return Fail("缺少登录信息或登录信息已失效");
+            // 检测合法性
+            var validity = CheckValidity();
+            if (validity != null) return validity;
             // 添加默认排序
             if (Request.Str["orderSort"].IsNoneOrNull()) {
                 Request.Str["order"] = "ID";
@@ -43,11 +63,23 @@ namespace control {
         // 设置查询条件
         protected override Formula OnGetListQueryCondition() {
             dpz3.db.SqlUnits.Formula wh = null;
-            // 设置关键字查询
+            // 设置关键字及日期查询
             /*
-            if (!Request.Str["opt-search-key"].IsNoneOrNull()) {
-                string key = Request.Str["opt-search-key"];
+            string key = Request.Str["opt-search-key"];
+            string dateStart = Request.Str["opt-search-start"];
+            string dateEnd = Request.Str["opt-search-end"];
+            if (!key.IsNoneOrNull()) {
                 wh = Table["Name"].Like($$"%{key}%") | Table["Initials"].Like($$"%{key}%");
+            }
+            if (!dateStart.IsNoneOrNull()) {
+                if (dateStart != "不限") {
+                    wh &= Table["Date"] >= dateStart;
+                }
+            }
+            if (!dateEnd.IsNoneOrNull()) {
+                if (dateEnd != "不限") {
+                    wh &= Table["Date"] <= dateEnd;
+                }
             }
             */
             // 根据数据筛选
@@ -65,15 +97,32 @@ namespace control {
 
         // 列表输出
         protected override IResult OnGetListRender(Rows rows) {
+            // 遍历行数据
+            foreach (var row in rows) {
+                RowRender(row);
+            }
             return base.OnGetListRender(rows);
+        }
+
+        // 处理单行数据获取
+        protected override IResult OnGetRow() {
+            // 检测合法性
+            var validity = CheckValidity();
+            if (validity != null) return validity;
+            return base.OnGetRow();
+        }
+
+        // 单行数据输出
+        protected override IResult OnGetRowRender(Row row) {
+            RowRender(row);
+            return base.OnGetRowRender(row);
         }
 
         // 处理添加保存
         protected override IResult OnAddSave(Setting setting) {
-            // 验证登录
-            if (!Session.Enable) return Fail("缺少登录信息或登录信息已失效");
-            long uid= Session.GetValue("UserID").ToLong();
-            if (uid <= 0) return Fail("缺少登录信息或登录信息已失效");
+            // 检测合法性
+            var validity = CheckValidity();
+            if (validity != null) return validity;
             // 设置字段保存规则
             // setting.Name.IsMust = true;
             // 内容填充处理
@@ -86,10 +135,9 @@ namespace control {
 
         // 处理修改保存
         protected override IResult OnEditSave(Setting setting) {
-            // 验证登录
-            if (!Session.Enable) return Fail("缺少登录信息或登录信息已失效");
-            long uid= Session.GetValue("UserID").ToLong();
-            if (uid <= 0) return Fail("缺少登录信息或登录信息已失效");
+            // 检测合法性
+            var validity = CheckValidity();
+            if (validity != null) return validity;
             // 设置字段保存规则
             // setting.Name.IsMust = true;
             // 内容填充处理
@@ -102,10 +150,9 @@ namespace control {
 
         // 处理勾选修改保存
         protected override IResult OnCheckChangeSave() {
-            // 验证登录
-            if (!Session.Enable) return Fail("缺少登录信息或登录信息已失效");
-            long uid= Session.GetValue("UserID").ToLong();
-            if (uid <= 0) return Fail("缺少登录信息或登录信息已失效");
+            // 检测合法性
+            var validity = CheckValidity();
+            if (validity != null) return validity;
             return base.OnCheckChangeSave();
         }
 
@@ -114,12 +161,29 @@ namespace control {
             base.OnCheckChangeSaved();
         }
 
+        // 处理单字段修改保存
+        protected override IResult OnFieldEditSave() {
+            // 检测合法性
+            var validity = CheckValidity();
+            if (validity != null) return validity;
+            // 获取表单信息
+            string field = Request.Str["field"];
+            switch (field) {
+                default:return Fail("该字段不支持独立保存");
+            }
+            // return base.OnCheckChangeSave();
+        }
+
+        // 处理单字段修改后保存
+        protected override void OnFieldEditSaved() {
+            base.OnCheckChangeSaved();
+        }
+
         // 处理删除保存
         protected override IResult OnDeleteSave() {
-            // 验证登录
-            if (!Session.Enable) return Fail("缺少登录信息或登录信息已失效");
-            long uid= Session.GetValue("UserID").ToLong();
-            if (uid <= 0) return Fail("缺少登录信息或登录信息已失效");
+            // 检测合法性
+            var validity = CheckValidity();
+            if (validity != null) return validity;
             return base.OnDeleteSave();
         }
 
@@ -134,36 +198,50 @@ namespace control {
         /// 获取列表
         /// </summary>
         /// <returns></returns>
-        [Modular(ModularTypes.Post, "GetList")]
-        public IResult GetListByPost() { return base.GetList(); }
+        //[Modular(ModularTypes.Post, "GetList")]
+        //public IResult GetListByPost() { return base.GetList(); }
+
+        /// <summary>
+        /// 获取单行数据
+        /// </summary>
+        /// <returns></returns>
+        //[Modular(ModularTypes.Post, "GetRow")]
+        //public IResult GetRowByPost() { return base.GetRow(); }
 
         /// <summary>
         /// 添加数据
         /// </summary>
         /// <returns></returns>
-        [Modular(ModularTypes.Post, "AddSave")]
-        public IResult AddSaveByPost() { return base.AddSave(); }
+        //[Modular(ModularTypes.Post, "AddSave")]
+        //public IResult AddSaveByPost() { return base.AddSave(); }
 
         /// <summary>
-        /// 添加数据
+        /// 修改数据
         /// </summary>
         /// <returns></returns>
-        [Modular(ModularTypes.Post, "EditSave")]
-        public IResult EditSaveByPost() { return base.EditSave(); }
+        //[Modular(ModularTypes.Post, "EditSave")]
+        //public IResult EditSaveByPost() { return base.EditSave(); }
 
         /// <summary>
-        /// 添加数据
+        /// 勾选数据
         /// </summary>
         /// <returns></returns>
-        [Modular(ModularTypes.Post, "DeleteSave")]
-        public IResult DeleteSaveByPost() { return base.DeleteSave(); }
+        //[Modular(ModularTypes.Post, "CheckChangeSave")]
+        //public IResult CheckChangeSaveByPost() { return base.CheckChangeSave(); }
 
         /// <summary>
-        /// 添加数据
+        /// 修改单字段数据
         /// </summary>
         /// <returns></returns>
-        [Modular(ModularTypes.Post, "CheckChangeSave")]
-        public IResult CheckChangeSaveByPost() { return base.CheckChangeSave(); }
+        //[Modular(ModularTypes.Post, "FieldEditSave")]
+        //public IResult FieldEditSaveByPost() { return base.FieldEditSave(); }
+
+        /// <summary>
+        /// 删除数据
+        /// </summary>
+        /// <returns></returns>
+        //[Modular(ModularTypes.Post, "DeleteSave")]
+        //public IResult DeleteSaveByPost() { return base.DeleteSave(); }
 
         #endregion
 

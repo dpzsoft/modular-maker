@@ -11,12 +11,12 @@ app.loading(function (obj) {
     @table.Fields{
         ${field.Name}: "",};
     };
-// 填充表单
-if (!dpz2.isNull(obj.data.Args)) {
-    for (var k in obj.data.Args) {
-        obj.data.form[k] = obj.data.Args[k];
+    // 填充表单
+    if (!dpz2.isNull(obj.data.Args.data)) {
+        for (var k in obj.data.Args.data) {
+            obj.data.form[k] = obj.data.Args.data[k];
+        }
     }
-}
 });
 
 // 加载完毕
@@ -35,8 +35,8 @@ app.ready(function (obj) {
             $$jttp.postApi("/" + obj.data.packageName + "/Api/${table.Name}/AddSave", args, function () {
                 docker.delayed.show("操作成功", 2000);
                 docker.dialog.close();
-                //刷新列表应用数据
-                app.configs["${table.Name}_List"].methods.onRefresh();
+                // 执行回调函数
+                if (dpz2.isFunction(obj.data.Args.callback)) obj.data.Args.callback(args);
             }, function (jttp) {
                 alert(jttp.Message);
             });

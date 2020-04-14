@@ -191,6 +191,40 @@ namespace Xorm {
         }
 
         /// <summary>
+        /// 可重载的获取单行数据事件
+        /// </summary>
+        protected virtual IResult OnGetRow() { return null; }
+
+        /// <summary>
+        /// 可重载的单行数据呈现事件
+        /// </summary>
+        protected virtual IResult OnGetRowRender(Row row) { return null; }
+
+        /// <summary>
+        /// 获取单行数据
+        /// </summary>
+        protected IResult GetRow() {
+            // 定义数据库连接
+            var dbc = Host.Connection;
+            // 判断主键是否设置
+            long lngID = Request.Str["ID"].ToLong();
+            if (lngID <= 0) return Fail("尚未设置主键值");
+            // 执行重载事件，并返回结果
+            IResult res = this.OnGetRow();
+            if (res != null) return res;
+            try {
+                // 获取数据
+                var row = dbc.Select(Table).Where(Table["ID"] == lngID).GetRow();
+                // 执行呈送事件，并返回结果
+                IResult resRender = this.OnGetRowRender(row);
+                if (resRender != null) return resRender;
+                return RowSuccess(row);
+            } catch (Exception ex) {
+                return Error(ex.Message, 0, ex.ToString());
+            }
+        }
+
+        /// <summary>
         /// 可重载的数据添加事件
         /// </summary>
         protected virtual IResult OnAddSave(Setting setting) { return null; }
@@ -338,18 +372,63 @@ namespace Xorm {
                 // 获取原有数据
                 var row = dbc.Select(Table).Columns(Table["ID"], Table[field]).Where(Table["ID"] == id).GetRow();
                 if (row.IsEmpty) return Fail("信息不存在");
+                // 新建数据集合
+                var rowUpdate = new dpz3.db.Row();
                 // 判断并更改数据
                 if (row[field].ToInteger() > 0) {
-                    row[field] = "0";
-                    dbc.Update(Table, row, Table["ID"]).Exec();
+                    rowUpdate[field] = "0";
+                    dbc.Update(Table, rowUpdate).Where(Table["ID"] == row["ID"]).Exec();
                     Response.Data.Number(field, 0);
                 } else {
-                    row[field] = "1";
-                    dbc.Update(Table, row, Table["ID"]).Exec();
+                    rowUpdate[field] = "1";
+                    dbc.Update(Table, rowUpdate).Where(Table["ID"] == row["ID"]).Exec();
                     Response.Data.Number(field, 1);
                 }
                 // 数据修改后事件
                 this.OnCheckChangeSaved();
+                return Success();
+            } catch (Exception ex) {
+                return Error(ex.Message, 0, ex.ToString());
+            }
+        }
+
+        /// <summary>
+        /// 可重载的单字段数据修改事件
+        /// </summary>
+        protected virtual IResult OnFieldEditSave() { return null; }
+
+        /// <summary>
+        /// 可重载的单字段数据修改后事件
+        /// </summary>
+        protected virtual void OnFieldEditSaved() { }
+
+        /// <summary>
+        /// 修改单字段数据修改
+        /// </summary>
+        protected IResult FieldEditSave() {
+            // 定义数据库连接
+            var dbc = Host.Connection;
+            // 判断主键是否设置
+            string id = Request.Str["ID"];
+            if (id.IsNoneOrNull()) return Fail("尚未设置主键值");
+            // 执行重载事件，并返回结果
+            IResult res = this.OnFieldEditSave();
+            if (res != null) return res;
+            try {
+                // 获取表单信息
+                string field = Request.Str["field"];
+                string value = Request.Str["value"];
+                if (field.IsNoneOrNull()) return Fail("尚未定义字段信息");
+                // 获取原有数据
+                var row = dbc.Select(Table).Columns(Table["ID"], Table[field]).Where(Table["ID"] == id).GetRow();
+                if (row.IsEmpty) return Fail("信息不存在");
+                // 新建数据集合
+                var rowUpdate = new dpz3.db.Row();
+                // 更改数据
+                rowUpdate[field] = value;
+                dbc.Update(Table, rowUpdate).Where(Table["ID"] == row["ID"]).Exec();
+                // 数据修改后事件
+                this.OnFieldEditSaved();
                 return Success();
             } catch (Exception ex) {
                 return Error(ex.Message, 0, ex.ToString());

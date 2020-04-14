@@ -22,14 +22,14 @@
   },
   "targets": {
     ".NETCoreApp,Version=v3.1": {
-      "mdrc/2.2.2003.29": {
+      "mdrc/2.3.2004.36": {
         "dependencies": {
-          "dpz3": "2.1.2003.46",
+          "dpz3": "2.2.2004.50",
           "dpz3.AspNetCore3": "2.0.2001.20",
-          "dpz3.Modular": "2.2.2003.30",
+          "dpz3.Modular": "2.3.2004.32",
           "dpz3.User": "1.0.1911.3",
           "dpz3.XOrm": "2.0.2001.7",
-          "dpz3.db": "1.2.1912.8",
+          "dpz3.db": "2.0.2003.9",
           "dpz3.ssr.SessionClient": "1.0.1911.1",
           "qcloud.qcloudsms_csharp": "0.1.6",
           "Microsoft.AspNetCore.Antiforgery": "3.1.0.0",
@@ -158,6 +158,7 @@
           "Microsoft.VisualBasic.Core": "10.0.5.0",
           "Microsoft.VisualBasic": "10.0.0.0",
           "Microsoft.Win32.Primitives.Reference": "4.1.2.0",
+          "Microsoft.Win32.Registry.Reference": "4.1.3.0",
           "mscorlib": "4.0.0.0",
           "netstandard": "2.1.0.0",
           "System.AppContext.Reference": "4.2.2.0",
@@ -182,6 +183,7 @@
           "System.Diagnostics.Contracts": "4.0.4.0",
           "System.Diagnostics.Debug.Reference": "4.1.2.0",
           "System.Diagnostics.DiagnosticSource.Reference": "4.0.5.0",
+          "System.Diagnostics.EventLog": "4.0.2.0",
           "System.Diagnostics.FileVersionInfo": "4.0.4.0",
           "System.Diagnostics.Process": "4.2.2.0",
           "System.Diagnostics.StackTrace": "4.1.2.0",
@@ -207,6 +209,7 @@
           "System.IO.FileSystem.Watcher": "4.1.2.0",
           "System.IO.IsolatedStorage": "4.1.2.0",
           "System.IO.MemoryMappedFiles": "4.1.2.0",
+          "System.IO.Pipelines": "4.0.2.0",
           "System.IO.Pipes": "4.1.2.0",
           "System.IO.UnmanagedMemoryStream": "4.1.2.0",
           "System.Linq.Reference": "4.2.2.0",
@@ -262,14 +265,19 @@
           "System.Runtime.Serialization.Json": "4.0.5.0",
           "System.Runtime.Serialization.Primitives.Reference": "4.2.2.0",
           "System.Runtime.Serialization.Xml": "4.1.5.0",
+          "System.Security.AccessControl.Reference": "4.1.1.0",
           "System.Security.Claims": "4.1.2.0",
           "System.Security.Cryptography.Algorithms.Reference": "4.3.2.0",
+          "System.Security.Cryptography.Cng.Reference": "4.3.3.0",
           "System.Security.Cryptography.Csp.Reference": "4.1.2.0",
           "System.Security.Cryptography.Encoding.Reference": "4.1.2.0",
           "System.Security.Cryptography.Primitives.Reference": "4.1.2.0",
           "System.Security.Cryptography.X509Certificates.Reference": "4.2.2.0",
+          "System.Security.Cryptography.Xml": "4.0.3.0",
           "System.Security": "4.0.0.0",
+          "System.Security.Permissions.Reference": "4.0.3.0",
           "System.Security.Principal": "4.1.2.0",
+          "System.Security.Principal.Windows.Reference": "4.1.1.0",
           "System.Security.SecureString": "4.1.2.0",
           "System.ServiceModel.Web": "4.0.0.0",
           "System.ServiceProcess": "4.0.0.0",
@@ -295,6 +303,7 @@
           "System.Web": "4.0.0.0",
           "System.Web.HttpUtility": "4.0.2.0",
           "System.Windows": "4.0.0.0",
+          "System.Windows.Extensions": "4.0.1.0",
           "System.Xml": "4.0.0.0",
           "System.Xml.Linq": "4.0.0.0",
           "System.Xml.ReaderWriter.Reference": "4.2.2.0",
@@ -329,11 +338,11 @@
           "lib/netstandard2.0/BouncyCastle.Crypto.dll": {}
         }
       },
-      "dpz3/2.1.2003.46": {
+      "dpz3/2.2.2004.50": {
         "runtime": {
           "lib/netstandard2.0/dpz3.dll": {
-            "assemblyVersion": "1.0.1909.21",
-            "fileVersion": "1.0.1909.21"
+            "assemblyVersion": "2.2.2004.50",
+            "fileVersion": "2.2.2004.50"
           }
         },
         "compile": {
@@ -342,9 +351,9 @@
       },
       "dpz3.AspNetCore3/2.0.2001.20": {
         "dependencies": {
-          "dpz3": "2.1.2003.46",
+          "dpz3": "2.2.2004.50",
           "dpz3.Jttp": "1.2.1912.10",
-          "dpz3.db": "1.2.1912.8"
+          "dpz3.db": "2.0.2003.9"
         },
         "runtime": {
           "lib/netcoreapp3.1/dpz3.AspNetCore3.dll": {
@@ -356,18 +365,18 @@
           "lib/netcoreapp3.1/dpz3.AspNetCore3.dll": {}
         }
       },
-      "dpz3.db/1.2.1912.8": {
+      "dpz3.db/2.0.2003.9": {
         "dependencies": {
           "Microsoft.Data.Sqlite": "3.1.0",
           "MySql.Data": "8.0.18",
           "Npgsql": "4.1.2",
           "System.Data.SqlClient": "4.8.0",
-          "dpz3": "2.1.2003.46"
+          "dpz3": "2.2.2004.50"
         },
         "runtime": {
           "lib/netstandard2.1/dpz3.db.dll": {
-            "assemblyVersion": "1.2.1912.8",
-            "fileVersion": "1.2.1912.8"
+            "assemblyVersion": "2.0.2003.9",
+            "fileVersion": "2.0.2003.9"
           }
         },
         "compile": {
@@ -376,7 +385,7 @@
       },
       "dpz3.Jttp/1.2.1912.10": {
         "dependencies": {
-          "dpz3": "2.1.2003.46"
+          "dpz3": "2.2.2004.50"
         },
         "runtime": {
           "lib/netstandard2.0/dpz3.Jttp.dll": {
@@ -388,16 +397,16 @@
           "lib/netstandard2.0/dpz3.Jttp.dll": {}
         }
       },
-      "dpz3.Modular/2.2.2003.30": {
+      "dpz3.Modular/2.3.2004.32": {
         "dependencies": {
-          "dpz3": "2.1.2003.46",
+          "dpz3": "2.2.2004.50",
           "dpz3.Jttp": "1.2.1912.10",
-          "dpz3.db": "1.2.1912.8"
+          "dpz3.db": "2.0.2003.9"
         },
         "runtime": {
           "lib/netcoreapp3.1/dpz3.Modular.dll": {
-            "assemblyVersion": "2.2.2003.30",
-            "fileVersion": "2.2.2003.30"
+            "assemblyVersion": "2.3.2004.32",
+            "fileVersion": "2.3.2004.32"
           }
         },
         "compile": {
@@ -406,7 +415,7 @@
       },
       "dpz3.ssr/1.0.1911.1": {
         "dependencies": {
-          "dpz3": "2.1.2003.46"
+          "dpz3": "2.2.2004.50"
         },
         "runtime": {
           "lib/netstandard2.0/dpz3.ssr.dll": {
@@ -434,7 +443,7 @@
       },
       "dpz3.User/1.0.1911.3": {
         "dependencies": {
-          "dpz3": "2.1.2003.46"
+          "dpz3": "2.2.2004.50"
         },
         "runtime": {
           "lib/netstandard2.0/dpz3.User.dll": {
@@ -448,7 +457,7 @@
       },
       "dpz3.XOrm/2.0.2001.7": {
         "dependencies": {
-          "dpz3": "2.1.2003.46"
+          "dpz3": "2.2.2004.50"
         },
         "runtime": {
           "lib/netstandard2.0/dpz3.XOrm.dll": {
@@ -1422,9 +1431,6 @@
         "dependencies": {
           "Microsoft.NETCore.Platforms": "3.1.0",
           "System.Security.Principal.Windows": "4.7.0"
-        },
-        "compile": {
-          "ref/netstandard2.0/System.Security.AccessControl.dll": {}
         }
       },
       "System.Security.Cryptography.Algorithms/4.3.0": {
@@ -1569,16 +1575,9 @@
       "System.Security.Permissions/4.4.1": {
         "dependencies": {
           "System.Security.AccessControl": "4.7.0"
-        },
-        "compile": {
-          "ref/netstandard2.0/System.Security.Permissions.dll": {}
         }
       },
-      "System.Security.Principal.Windows/4.7.0": {
-        "compile": {
-          "ref/netcoreapp3.0/System.Security.Principal.Windows.dll": {}
-        }
-      },
+      "System.Security.Principal.Windows/4.7.0": {},
       "System.Text.Encoding/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "3.1.0",
@@ -2483,6 +2482,12 @@
         },
         "compileOnly": true
       },
+      "Microsoft.Win32.Registry.Reference/4.1.3.0": {
+        "compile": {
+          "Microsoft.Win32.Registry.dll": {}
+        },
+        "compileOnly": true
+      },
       "mscorlib/4.0.0.0": {
         "compile": {
           "mscorlib.dll": {}
@@ -2624,6 +2629,12 @@
       "System.Diagnostics.DiagnosticSource.Reference/4.0.5.0": {
         "compile": {
           "System.Diagnostics.DiagnosticSource.dll": {}
+        },
+        "compileOnly": true
+      },
+      "System.Diagnostics.EventLog/4.0.2.0": {
+        "compile": {
+          "System.Diagnostics.EventLog.dll": {}
         },
         "compileOnly": true
       },
@@ -2774,6 +2785,12 @@
       "System.IO.MemoryMappedFiles/4.1.2.0": {
         "compile": {
           "System.IO.MemoryMappedFiles.dll": {}
+        },
+        "compileOnly": true
+      },
+      "System.IO.Pipelines/4.0.2.0": {
+        "compile": {
+          "System.IO.Pipelines.dll": {}
         },
         "compileOnly": true
       },
@@ -3107,6 +3124,12 @@
         },
         "compileOnly": true
       },
+      "System.Security.AccessControl.Reference/4.1.1.0": {
+        "compile": {
+          "System.Security.AccessControl.dll": {}
+        },
+        "compileOnly": true
+      },
       "System.Security.Claims/4.1.2.0": {
         "compile": {
           "System.Security.Claims.dll": {}
@@ -3116,6 +3139,12 @@
       "System.Security.Cryptography.Algorithms.Reference/4.3.2.0": {
         "compile": {
           "System.Security.Cryptography.Algorithms.dll": {}
+        },
+        "compileOnly": true
+      },
+      "System.Security.Cryptography.Cng.Reference/4.3.3.0": {
+        "compile": {
+          "System.Security.Cryptography.Cng.dll": {}
         },
         "compileOnly": true
       },
@@ -3143,15 +3172,33 @@
         },
         "compileOnly": true
       },
+      "System.Security.Cryptography.Xml/4.0.3.0": {
+        "compile": {
+          "System.Security.Cryptography.Xml.dll": {}
+        },
+        "compileOnly": true
+      },
       "System.Security/4.0.0.0": {
         "compile": {
           "System.Security.dll": {}
         },
         "compileOnly": true
       },
+      "System.Security.Permissions.Reference/4.0.3.0": {
+        "compile": {
+          "System.Security.Permissions.dll": {}
+        },
+        "compileOnly": true
+      },
       "System.Security.Principal/4.1.2.0": {
         "compile": {
           "System.Security.Principal.dll": {}
+        },
+        "compileOnly": true
+      },
+      "System.Security.Principal.Windows.Reference/4.1.1.0": {
+        "compile": {
+          "System.Security.Principal.Windows.dll": {}
         },
         "compileOnly": true
       },
@@ -3305,6 +3352,12 @@
         },
         "compileOnly": true
       },
+      "System.Windows.Extensions/4.0.1.0": {
+        "compile": {
+          "System.Windows.Extensions.dll": {}
+        },
+        "compileOnly": true
+      },
       "System.Xml/4.0.0.0": {
         "compile": {
           "System.Xml.dll": {}
@@ -3368,7 +3421,7 @@
     }
   },
   "libraries": {
-    "mdrc/2.2.2003.29": {
+    "mdrc/2.3.2004.36": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -3380,12 +3433,12 @@
       "path": "bouncycastle.netcore/1.8.3",
       "hashPath": "bouncycastle.netcore.1.8.3.nupkg.sha512"
     },
-    "dpz3/2.1.2003.46": {
+    "dpz3/2.2.2004.50": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-E5Hj8h72yTXK++nLejBkK04Bm7wuLEmc3aDYVF/rTdI8B5QA/nStGMeg96D3qzq9Qpasp/JX4CQP28wrLrbP6A==",
-      "path": "dpz3/2.1.2003.46",
-      "hashPath": "dpz3.2.1.2003.46.nupkg.sha512"
+      "sha512": "sha512-8BgCuId6NTglNclHETDeS1ADF4cmAM/mAIzhxY691Es+H6s3ntutNUnYjoMtoG0Qs3oAZL0zNVkKOVim4g5xNQ==",
+      "path": "dpz3/2.2.2004.50",
+      "hashPath": "dpz3.2.2.2004.50.nupkg.sha512"
     },
     "dpz3.AspNetCore3/2.0.2001.20": {
       "type": "package",
@@ -3394,12 +3447,12 @@
       "path": "dpz3.aspnetcore3/2.0.2001.20",
       "hashPath": "dpz3.aspnetcore3.2.0.2001.20.nupkg.sha512"
     },
-    "dpz3.db/1.2.1912.8": {
+    "dpz3.db/2.0.2003.9": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-+SUhQ2kr+KBTFMGTA0M2P4MVbjMwxpB8t2qh2rnSWhgSZn+KKylL5XW8H/s96Vek5kTGrac2prJ7EUs/Tp/+XA==",
-      "path": "dpz3.db/1.2.1912.8",
-      "hashPath": "dpz3.db.1.2.1912.8.nupkg.sha512"
+      "sha512": "sha512-II+hhl6JjbwrIRE7Iwl2EBl9R3+UBewFfCQaibYNyTGPuFmYnLoR5+coqYkz1VkN3tfzrsTQavjpEpTZfL4I/w==",
+      "path": "dpz3.db/2.0.2003.9",
+      "hashPath": "dpz3.db.2.0.2003.9.nupkg.sha512"
     },
     "dpz3.Jttp/1.2.1912.10": {
       "type": "package",
@@ -3408,12 +3461,12 @@
       "path": "dpz3.jttp/1.2.1912.10",
       "hashPath": "dpz3.jttp.1.2.1912.10.nupkg.sha512"
     },
-    "dpz3.Modular/2.2.2003.30": {
+    "dpz3.Modular/2.3.2004.32": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-RDVRwnLkbgS9/SxuEbavmryImukKpWYNGSw48mLb/SqSCDPyi/+kcz1Tuvt0NBOK9AOzzRnKwFmZ9cIK2+fjmA==",
-      "path": "dpz3.modular/2.2.2003.30",
-      "hashPath": "dpz3.modular.2.2.2003.30.nupkg.sha512"
+      "sha512": "sha512-nrP1nLYHMQ6OwH3Rn0JtF4y3sGBJDb2j2wUJNzE30OuQAQ+v419026O7AcVLSZvWbIzW8uSHKZiXl6Av8Vz9LA==",
+      "path": "dpz3.modular/2.3.2004.32",
+      "hashPath": "dpz3.modular.2.3.2004.32.nupkg.sha512"
     },
     "dpz3.ssr/1.0.1911.1": {
       "type": "package",
@@ -4892,6 +4945,11 @@
       "serviceable": false,
       "sha512": ""
     },
+    "Microsoft.Win32.Registry.Reference/4.1.3.0": {
+      "type": "referenceassembly",
+      "serviceable": false,
+      "sha512": ""
+    },
     "mscorlib/4.0.0.0": {
       "type": "referenceassembly",
       "serviceable": false,
@@ -5008,6 +5066,11 @@
       "sha512": ""
     },
     "System.Diagnostics.DiagnosticSource.Reference/4.0.5.0": {
+      "type": "referenceassembly",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Diagnostics.EventLog/4.0.2.0": {
       "type": "referenceassembly",
       "serviceable": false,
       "sha512": ""
@@ -5133,6 +5196,11 @@
       "sha512": ""
     },
     "System.IO.MemoryMappedFiles/4.1.2.0": {
+      "type": "referenceassembly",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.IO.Pipelines/4.0.2.0": {
       "type": "referenceassembly",
       "serviceable": false,
       "sha512": ""
@@ -5412,12 +5480,22 @@
       "serviceable": false,
       "sha512": ""
     },
+    "System.Security.AccessControl.Reference/4.1.1.0": {
+      "type": "referenceassembly",
+      "serviceable": false,
+      "sha512": ""
+    },
     "System.Security.Claims/4.1.2.0": {
       "type": "referenceassembly",
       "serviceable": false,
       "sha512": ""
     },
     "System.Security.Cryptography.Algorithms.Reference/4.3.2.0": {
+      "type": "referenceassembly",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Security.Cryptography.Cng.Reference/4.3.3.0": {
       "type": "referenceassembly",
       "serviceable": false,
       "sha512": ""
@@ -5442,12 +5520,27 @@
       "serviceable": false,
       "sha512": ""
     },
+    "System.Security.Cryptography.Xml/4.0.3.0": {
+      "type": "referenceassembly",
+      "serviceable": false,
+      "sha512": ""
+    },
     "System.Security/4.0.0.0": {
       "type": "referenceassembly",
       "serviceable": false,
       "sha512": ""
     },
+    "System.Security.Permissions.Reference/4.0.3.0": {
+      "type": "referenceassembly",
+      "serviceable": false,
+      "sha512": ""
+    },
     "System.Security.Principal/4.1.2.0": {
+      "type": "referenceassembly",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Security.Principal.Windows.Reference/4.1.1.0": {
       "type": "referenceassembly",
       "serviceable": false,
       "sha512": ""
@@ -5573,6 +5666,11 @@
       "sha512": ""
     },
     "System.Windows/4.0.0.0": {
+      "type": "referenceassembly",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Windows.Extensions/4.0.1.0": {
       "type": "referenceassembly",
       "serviceable": false,
       "sha512": ""

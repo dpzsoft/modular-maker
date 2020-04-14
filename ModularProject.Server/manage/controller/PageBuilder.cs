@@ -85,6 +85,10 @@ namespace controller {
                         xmlTable.Attr["name"] = table.Attr["name"];
                         xmlTable.Attr["title"] = table.Attr["title"];
                         xmlTable.Attr["md5"] = md5;
+                        xmlTable.Attr["statistics"] = "false";
+                        // 界面定义节点
+                        var xmlInterface = xmlTable["interface"];
+                        if (xmlInterface == null) xmlInterface = xmlTable.AddNode("interface");
                         // 字段定义节点
                         var xmlFields = xmlTable["fields"];
                         if (xmlFields == null) xmlFields = xmlTable.AddNode("fields");
@@ -236,9 +240,9 @@ namespace controller {
                         xmlTable.Attr["name"] = table.Attr["name"];
                         xmlTable.Attr["title"] = table.Attr["title"];
                         xmlTable.Attr["md5"] = md5;
-                        //// 界面定义节点
-                        //var xmlInterface = xmlTable["interface"];
-                        //if (xmlInterface == null) xmlInterface = xmlTable.AddNode("interface");
+                        // 界面定义节点
+                        var xmlInterface = xmlTable["interface"];
+                        if (xmlInterface == null) xmlInterface = xmlTable.AddNode("interface");
                         // 字段定义节点
                         var xmlFields = xmlTable["fields"];
                         if (xmlFields == null) xmlFields = xmlTable.AddNode("fields");
@@ -607,9 +611,11 @@ namespace controller {
                                     #region [=====生成列表HTML=====]
                                     // 界面定义节点
                                     var xmlTable = xormDoc["table"];
+                                    bool hasStatistics = xmlTable.Attr["statistics"] == "true";
+                                    // 界面定义节点
+                                    var xmlInterface = xmlTable["interface"];
+                                    if (xmlInterface == null) xmlInterface = xmlTable.AddNode("interface");
                                     #region [=====早期的控件定义模式=====]
-                                    //// 界面定义节点
-                                    //var xmlInterface = xmlTable["interface"];
                                     //// vue绑定节点
                                     //var xmlInterfaceVue = xmlInterface["vue"];
                                     //var xmlInterfaceVueList = xmlInterfaceVue?["list"];
@@ -637,13 +643,38 @@ namespace controller {
                                     // 建立表格节点
                                     var table = docx.CreateElement("table");
                                     docx.Nodes.Add(table);
+                                    #region [=====处理table组件相关内容=====]
+                                    // 读取全局配置
+                                    var listTable = listGroup["table"];
+                                    if (listTable == null) {
+                                        // 初始化全局配置
+                                        listTable = listGroup.AddNode("table");
+                                        listTable.IsSingle = true;
+                                        needSave = true;
+                                    }
+                                    // 生效全局配置
+                                    foreach (var key in listTable.Attr.Keys) {
+                                        table.Attr[key] = listTable.Attr[key];
+                                    }
+                                    // 读取自定义配置
+                                    var interfaceTable = xmlInterface["table"];
+                                    if (interfaceTable == null) interfaceTable = xmlInterface.AddNode("interface");
+                                    // 生效自定义配置
+                                    foreach (var key in interfaceTable.Attr.Keys) {
+                                        table.Attr[key] = interfaceTable.Attr[key];
+                                    }
+                                    #endregion
                                     // 建立表头行
                                     var head = docx.CreateElement("tr");
                                     table.Children.Add(head);
                                     // 建立数据行
                                     var data = docx.CreateElement("tr");
                                     table.Children.Add(data);
-                                    // 读取vue配置
+                                    // 建立统计行
+                                    var trStatistics = docx.CreateElement("tr");
+                                    if (hasStatistics) table.Children.Add(trStatistics);
+                                    #region [=====处理vue组件相关内容=====]
+                                    // 读取全局配置
                                     var listVue = listGroup["vue"];
                                     if (listVue == null) {
                                         listVue = listGroup.AddNode("vue");
@@ -662,6 +693,18 @@ namespace controller {
                                     data.Attr["v-for"] = listVueList.Attr["for"];
                                     data.Attr["v-bind:key"] = listVueList.Attr["key"];
                                     string vueListItem = listVueList?.Attr["item"];
+                                    // 读取自定义配置
+                                    var interfaceVue = xmlInterface["vue"];
+                                    if (interfaceVue != null) {
+                                        var interfaceVueList = interfaceVue["list"];
+                                        if (interfaceVueList != null) {
+                                            if (interfaceVueList.Attr.ContainsKey("for")) data.Attr["v-for"] = interfaceVueList.Attr["for"];
+                                            if (interfaceVueList.Attr.ContainsKey("key")) data.Attr["v-bind:key"] = interfaceVueList.Attr["key"];
+                                            if (interfaceVueList.Attr.ContainsKey("for")) vueListItem = interfaceVueList.Attr["item"];
+                                        }
+                                    }
+                                    #endregion
+                                    #region [=====处理row组件相关内容=====]
                                     // 读取row配置
                                     var listRow = listGroup["row"];
                                     if (listRow == null) {
@@ -673,6 +716,14 @@ namespace controller {
                                     foreach (var key in listRow.Attr.Keys) {
                                         data.Attr[key] = listRow.Attr[key];
                                     }
+                                    // 读取自定义配置
+                                    var interfaceRow = xmlInterface["row"];
+                                    if (interfaceRow == null) interfaceRow = xmlInterface.AddNode("row");
+                                    // 生效自定义配置
+                                    foreach (var key in interfaceRow.Attr.Keys) {
+                                        data.Attr[key] = interfaceRow.Attr[key];
+                                    }
+                                    #endregion
                                     // 遍历字段
                                     foreach (var xmlField in xmlFields.GetNodesByTagName("field")) {
                                         string fldName = xmlField.Attr["name"];
@@ -682,58 +733,16 @@ namespace controller {
                                         // 字段类型不为none时，才有输出
                                         if (fldType != "none") {
                                             string fldWidth = xmlField.Attr["width"]?.ToLower();
-                                            if (fldWidth.IsNoneOrNull()) fldWidth = "100px";
+                                            #region [=====处理标题行=====]
                                             var th = docx.CreateElement("th");
                                             head.Children.Add(th);
-                                            th.Attr["style"] = $"width:{fldWidth};min-width:{fldWidth};max-width:{fldWidth};";
+                                            if (!fldWidth.IsNoneOrNull()) {
+                                                th.Attr["style"] = $"width:{fldWidth};min-width:{fldWidth};max-width:{fldWidth};";
+                                            }
                                             th.InnerHTML = fldTitle;
                                             // 判断是否需要支持排序
                                             if (fldOrder == "true") {
-                                                // 定义排序控件操作
-                                                var xmlInterfaceOrder = listGroup["order"];
-                                                if (xmlInterfaceOrder == null) {
-                                                    xmlInterfaceOrder = listGroup.AddNode("order");
-                                                    xmlInterfaceOrder.Attr["tag-name"] = "div";
-                                                    xmlInterfaceOrder.Attr["class"] = "x-order";
-                                                    needSave = true;
-                                                }
-                                                // asc
-                                                var xmlInterfaceOrderAsc = xmlInterfaceOrder["asc"];
-                                                if (xmlInterfaceOrderAsc == null) {
-                                                    xmlInterfaceOrderAsc = xmlInterfaceOrder.AddNode("asc");
-                                                    xmlInterfaceOrderAsc.IsSingle = true;
-                                                    xmlInterfaceOrderAsc.Attr["tag-name"] = "div";
-                                                    xmlInterfaceOrderAsc.Attr["class"] = "x-order-asc";
-                                                    needSave = true;
-                                                }
-                                                // asc-act
-                                                var xmlInterfaceOrderAscAct = xmlInterfaceOrder["asc-act"];
-                                                if (xmlInterfaceOrderAscAct == null) {
-                                                    xmlInterfaceOrderAscAct = xmlInterfaceOrder.AddNode("asc-act");
-                                                    xmlInterfaceOrderAscAct.IsSingle = true;
-                                                    xmlInterfaceOrderAscAct.Attr["tag-name"] = "div";
-                                                    xmlInterfaceOrderAscAct.Attr["class"] = "x-order-asc-act";
-                                                    needSave = true;
-                                                }
-                                                // desc
-                                                var xmlInterfaceOrderDesc = xmlInterfaceOrder["desc"];
-                                                if (xmlInterfaceOrderDesc == null) {
-                                                    xmlInterfaceOrderDesc = xmlInterfaceOrder.AddNode("desc");
-                                                    xmlInterfaceOrderDesc.IsSingle = true;
-                                                    xmlInterfaceOrderDesc.Attr["tag-name"] = "div";
-                                                    xmlInterfaceOrderDesc.Attr["class"] = "x-order-desc";
-                                                    needSave = true;
-                                                }
-                                                // desc-act
-                                                var xmlInterfaceOrderDescAct = xmlInterfaceOrder["desc-act"];
-                                                if (xmlInterfaceOrderDescAct == null) {
-                                                    xmlInterfaceOrderDescAct = xmlInterfaceOrder.AddNode("desc-act");
-                                                    xmlInterfaceOrderDescAct.IsSingle = true;
-                                                    xmlInterfaceOrderDescAct.Attr["tag-name"] = "div";
-                                                    xmlInterfaceOrderDescAct.Attr["class"] = "x-order-desc-act";
-                                                    needSave = true;
-                                                }
-
+                                                #region [=====处理vue/order组件相关内容=====]
                                                 // vue中的order配置
                                                 var xmlInterfaceVueOrder = listVue["order"];
                                                 if (xmlInterfaceVueOrder == null) {
@@ -744,54 +753,172 @@ namespace controller {
                                                     xmlInterfaceVueOrder.Attr["click"] = "onOrder";
                                                     needSave = true;
                                                 }
+                                                // 读取自定义配置
+                                                var interfaceVueOrder = interfaceVue["order"];
+                                                if (interfaceVueOrder == null) interfaceVueOrder = interfaceVue.AddNode("order");
+                                                #endregion
+                                                #region [=====处理排序组件相关内容=====]
+                                                // 定义排序控件操作
+                                                var xmlInterfaceOrder = listGroup["order"];
+                                                if (xmlInterfaceOrder == null) {
+                                                    xmlInterfaceOrder = listGroup.AddNode("order");
+                                                    xmlInterfaceOrder.Attr["tag-name"] = "div";
+                                                    xmlInterfaceOrder.Attr["class"] = "x-order";
+                                                    needSave = true;
+                                                }
+                                                // 读取自定义配置
+                                                var interfaceOrder = xmlInterface["order"];
+                                                if (interfaceOrder == null) interfaceOrder = xmlInterface.AddNode("order");
                                                 // 添加对排序的支持
-                                                var thOrder = docx.CreateElement(xmlInterfaceOrder.Attr["tag-name"]);
+                                                string thOrderTagName = xmlInterfaceOrder.Attr["tag-name"];
+                                                if (interfaceOrder.Attr.ContainsKey("tag-name")) thOrderTagName = interfaceOrder.Attr["tag-name"];
+                                                var thOrder = docx.CreateElement(thOrderTagName);
                                                 th.Children.Add(thOrder);
                                                 thOrder.Attr["v-on:click"] = $"{xmlInterfaceVueOrder.Attr["click"]}($event,'{fldName}')";
+                                                // 填充自定义内容
+                                                if (interfaceVueOrder.Attr.ContainsKey("click")) thOrder.Attr["v-on:click"] = $"{interfaceVueOrder.Attr["click"]}($event,'{fldName}')";
                                                 // 填充line定义内容
                                                 foreach (var key in xmlInterfaceOrder.Attr.Keys) {
                                                     if (key != "tag-name")
                                                         thOrder.Attr[key] = xmlInterfaceOrder.Attr[key];
                                                 }
+                                                // 填充自定义内容
+                                                foreach (var key in interfaceOrder.Attr.Keys) {
+                                                    if (key != "tag-name")
+                                                        thOrder.Attr[key] = interfaceOrder.Attr[key];
+                                                }
+                                                #endregion
+                                                #region [=====处理正序组件相关内容=====]
+                                                // asc
+                                                var xmlInterfaceOrderAsc = xmlInterfaceOrder["asc"];
+                                                if (xmlInterfaceOrderAsc == null) {
+                                                    xmlInterfaceOrderAsc = xmlInterfaceOrder.AddNode("asc");
+                                                    xmlInterfaceOrderAsc.IsSingle = true;
+                                                    xmlInterfaceOrderAsc.Attr["tag-name"] = "div";
+                                                    xmlInterfaceOrderAsc.Attr["class"] = "x-order-asc";
+                                                    needSave = true;
+                                                }
+                                                // 读取自定义配置
+                                                var interfaceOrderAsc = interfaceOrder["asc"];
+                                                if (interfaceOrderAsc == null) interfaceOrderAsc = interfaceOrder.AddNode("asc");
                                                 // 正序控件
-                                                var thOrderAsc = docx.CreateElement(xmlInterfaceOrderAsc.Attr["tag-name"]);
+                                                string thOrderAscTagName = xmlInterfaceOrderAsc.Attr["tag-name"];
+                                                if (interfaceOrderAsc.Attr.ContainsKey("tag-name")) thOrderAscTagName = interfaceOrderAsc.Attr["tag-name"];
+                                                var thOrderAsc = docx.CreateElement(thOrderAscTagName);
                                                 thOrder.Children.Add(thOrderAsc);
                                                 thOrderAsc.Attr["v-if"] = $"{xmlInterfaceVueOrder.Attr["field"]}!=='{fldName}'||{xmlInterfaceVueOrder.Attr["sort"]}!=='asc'";
+                                                // 填充自定义内容
+                                                if (interfaceVueOrder.Attr.ContainsKey("field") && interfaceVueOrder.Attr.ContainsKey("sort")) thOrderAsc.Attr["v-if"] = $"{interfaceVueOrder.Attr["field"]}!=='{fldName}'||{interfaceVueOrder.Attr["sort"]}!=='asc'";
                                                 // 填充line定义内容
                                                 foreach (var key in xmlInterfaceOrderAsc.Attr.Keys) {
                                                     if (key != "tag-name")
                                                         thOrderAsc.Attr[key] = xmlInterfaceOrderAsc.Attr[key];
                                                 }
+                                                // 填充自定义内容
+                                                foreach (var key in interfaceOrderAsc.Attr.Keys) {
+                                                    if (key != "tag-name")
+                                                        thOrderAsc.Attr[key] = interfaceOrderAsc.Attr[key];
+                                                }
+                                                #endregion
+                                                #region [=====处理正序激活组件相关内容=====]
+                                                // asc-act
+                                                var xmlInterfaceOrderAscAct = xmlInterfaceOrder["asc-act"];
+                                                if (xmlInterfaceOrderAscAct == null) {
+                                                    xmlInterfaceOrderAscAct = xmlInterfaceOrder.AddNode("asc-act");
+                                                    xmlInterfaceOrderAscAct.IsSingle = true;
+                                                    xmlInterfaceOrderAscAct.Attr["tag-name"] = "div";
+                                                    xmlInterfaceOrderAscAct.Attr["class"] = "x-order-asc-act";
+                                                    needSave = true;
+                                                }
+                                                var interfaceOrderAscAct = interfaceOrder["asc-act"];
+                                                if (interfaceOrderAscAct == null) interfaceOrderAscAct = interfaceOrder.AddNode("asc-act");
                                                 // 正序控件激活
-                                                var thOrderAscAct = docx.CreateElement(xmlInterfaceOrderAscAct.Attr["tag-name"]);
+                                                string thOrderAscActTagName = xmlInterfaceOrderAscAct.Attr["tag-name"];
+                                                if (interfaceOrderAscAct.Attr.ContainsKey("tag-name")) thOrderAscActTagName = interfaceOrderAscAct.Attr["tag-name"];
+                                                var thOrderAscAct = docx.CreateElement(thOrderAscActTagName);
                                                 thOrder.Children.Add(thOrderAscAct);
                                                 thOrderAscAct.Attr["v-if"] = $"{xmlInterfaceVueOrder.Attr["field"]}==='{fldName}'&&{xmlInterfaceVueOrder.Attr["sort"]}==='asc'";
+                                                // 填充自定义内容
+                                                if (interfaceVueOrder.Attr.ContainsKey("field") && interfaceVueOrder.Attr.ContainsKey("sort")) thOrderAscAct.Attr["v-if"] = $"{interfaceVueOrder.Attr["field"]}==='{fldName}'||{interfaceVueOrder.Attr["sort"]}==='asc'";
                                                 // 填充line定义内容
                                                 foreach (var key in xmlInterfaceOrderAscAct.Attr.Keys) {
                                                     if (key != "tag-name")
                                                         thOrderAscAct.Attr[key] = xmlInterfaceOrderAscAct.Attr[key];
                                                 }
+                                                // 填充自定义内容
+                                                foreach (var key in interfaceOrderAscAct.Attr.Keys) {
+                                                    if (key != "tag-name")
+                                                        thOrderAscAct.Attr[key] = interfaceOrderAscAct.Attr[key];
+                                                }
+                                                #endregion
+                                                #region [=====处理反序组件相关内容=====]
+                                                // desc
+                                                var xmlInterfaceOrderDesc = xmlInterfaceOrder["desc"];
+                                                if (xmlInterfaceOrderDesc == null) {
+                                                    xmlInterfaceOrderDesc = xmlInterfaceOrder.AddNode("desc");
+                                                    xmlInterfaceOrderDesc.IsSingle = true;
+                                                    xmlInterfaceOrderDesc.Attr["tag-name"] = "div";
+                                                    xmlInterfaceOrderDesc.Attr["class"] = "x-order-desc";
+                                                    needSave = true;
+                                                }
+                                                var interfaceOrderDesc = interfaceOrder["desc"];
+                                                if (interfaceOrderDesc == null) interfaceOrderDesc = interfaceOrder.AddNode("desc");
                                                 // 反序控件
-                                                var thOrderDesc = docx.CreateElement(xmlInterfaceOrderDesc.Attr["tag-name"]);
+                                                string thOrderDescTagName = xmlInterfaceOrderDesc.Attr["tag-name"];
+                                                if (interfaceOrderDesc.Attr.ContainsKey("tag-name")) thOrderDescTagName = interfaceOrderDesc.Attr["tag-name"];
+                                                var thOrderDesc = docx.CreateElement(thOrderDescTagName);
                                                 thOrder.Children.Add(thOrderDesc);
                                                 thOrderDesc.Attr["v-if"] = $"{xmlInterfaceVueOrder.Attr["field"]}!=='{fldName}'||{xmlInterfaceVueOrder.Attr["sort"]}!=='desc'";
+                                                // 填充自定义内容
+                                                if (interfaceVueOrder.Attr.ContainsKey("field") && interfaceVueOrder.Attr.ContainsKey("sort")) thOrderDesc.Attr["v-if"] = $"{interfaceVueOrder.Attr["field"]}!=='{fldName}'||{interfaceVueOrder.Attr["sort"]}!=='desc'";
                                                 // 填充line定义内容
                                                 foreach (var key in xmlInterfaceOrderDesc.Attr.Keys) {
                                                     if (key != "tag-name")
                                                         thOrderDesc.Attr[key] = xmlInterfaceOrderDesc.Attr[key];
                                                 }
+                                                // 填充line定义内容
+                                                foreach (var key in interfaceOrderDesc.Attr.Keys) {
+                                                    if (key != "tag-name")
+                                                        thOrderDesc.Attr[key] = interfaceOrderDesc.Attr[key];
+                                                }
+                                                #endregion
+                                                #region [=====处理反序激活组件相关内容=====]
+                                                // desc-act
+                                                var xmlInterfaceOrderDescAct = xmlInterfaceOrder["desc-act"];
+                                                if (xmlInterfaceOrderDescAct == null) {
+                                                    xmlInterfaceOrderDescAct = xmlInterfaceOrder.AddNode("desc-act");
+                                                    xmlInterfaceOrderDescAct.IsSingle = true;
+                                                    xmlInterfaceOrderDescAct.Attr["tag-name"] = "div";
+                                                    xmlInterfaceOrderDescAct.Attr["class"] = "x-order-desc-act";
+                                                    needSave = true;
+                                                }
+                                                var interfaceOrderDescAct = interfaceOrder["desc-act"];
+                                                if (interfaceOrderDescAct == null) interfaceOrderDescAct = interfaceOrder.AddNode("desc-act");
                                                 // 反序控件激活
-                                                var thOrderDescAct = docx.CreateElement(xmlInterfaceOrderDescAct.Attr["tag-name"]);
+                                                string thOrderDescActTagName = xmlInterfaceOrderDescAct.Attr["tag-name"];
+                                                if (interfaceOrderDescAct.Attr.ContainsKey("tag-name")) thOrderDescActTagName = interfaceOrderDescAct.Attr["tag-name"];
+                                                var thOrderDescAct = docx.CreateElement(thOrderDescActTagName);
                                                 thOrder.Children.Add(thOrderDescAct);
                                                 thOrderDescAct.Attr["v-if"] = $"{xmlInterfaceVueOrder.Attr["field"]}==='{fldName}'&&{xmlInterfaceVueOrder.Attr["sort"]}==='desc'";
+                                                // 填充自定义内容
+                                                if (interfaceVueOrder.Attr.ContainsKey("field") && interfaceVueOrder.Attr.ContainsKey("sort")) thOrderDescAct.Attr["v-if"] = $"{interfaceVueOrder.Attr["field"]}==='{fldName}'||{interfaceVueOrder.Attr["sort"]}==='desc'";
                                                 // 填充line定义内容
                                                 foreach (var key in xmlInterfaceOrderDescAct.Attr.Keys) {
                                                     if (key != "tag-name")
                                                         thOrderDescAct.Attr[key] = xmlInterfaceOrderDescAct.Attr[key];
                                                 }
+                                                // 填充line定义内容
+                                                foreach (var key in interfaceOrderDescAct.Attr.Keys) {
+                                                    if (key != "tag-name")
+                                                        thOrderDescAct.Attr[key] = interfaceOrderDescAct.Attr[key];
+                                                }
+                                                #endregion
                                             }
+                                            #endregion
+                                            #region [=====处理数据行=====]
                                             var td = docx.CreateElement("td");
                                             data.Children.Add(td);
+                                            #region [=====处理cell组件相关内容=====]
                                             // 读取cell配置
                                             var xmlInterfaceCell = listGroup["cell"];
                                             if (xmlInterfaceCell == null) {
@@ -803,6 +930,14 @@ namespace controller {
                                             foreach (var key in xmlInterfaceCell.Attr.Keys) {
                                                 td.Attr[key] = xmlInterfaceCell.Attr[key];
                                             }
+                                            // 读取自定义配置
+                                            var interfaceCell = xmlInterface["cell"];
+                                            if (interfaceCell == null) interfaceCell = xmlInterface.AddNode("cell");
+                                            // 生效自定义配置
+                                            foreach (var key in interfaceCell.Attr.Keys) {
+                                                td.Attr[key] = interfaceCell.Attr[key];
+                                            }
+                                            #endregion
                                             switch (fldType) {
                                                 // 呈现为纯文本
                                                 case "text":
@@ -821,6 +956,9 @@ namespace controller {
                                                         xmlInterfaceImg = listGroup.AddNode("img");
                                                         needSave = true;
                                                     }
+                                                    // 读取自定义配置
+                                                    var interfaceImg = xmlInterface["img"];
+                                                    if (interfaceImg == null) interfaceImg = xmlInterface.AddNode("img");
                                                     // 定义图像控件容器
                                                     var xmlInterfaceImgBox = xmlInterfaceImg["box"];
                                                     if (xmlInterfaceImgBox == null) {
@@ -829,12 +967,23 @@ namespace controller {
                                                         xmlInterfaceImgBox.Attr["tag-name"] = "s";
                                                         needSave = true;
                                                     }
-                                                    var imgBox = docx.CreateElement(xmlInterfaceImgBox.Attr["tag-name"]);
+                                                    // 读取自定义配置
+                                                    var interfaceImgBox = interfaceImg["box"];
+                                                    if (interfaceImgBox == null) interfaceImgBox = interfaceImg.AddNode("box");
+                                                    // 定义标签
+                                                    string imgBoxTagName = xmlInterfaceImgBox.Attr["tag-name"];
+                                                    if (interfaceImgBox.Attr.ContainsKey("tag-name")) imgBoxTagName = interfaceImgBox.Attr["tag-name"];
+                                                    var imgBox = docx.CreateElement(imgBoxTagName);
                                                     td.Children.Add(imgBox);
                                                     // 填充图像容器定义内容
                                                     foreach (var key in xmlInterfaceImgBox.Attr.Keys) {
                                                         if (key != "tag-name")
                                                             imgBox.Attr[key] = xmlInterfaceImgBox.Attr[key];
+                                                    }
+                                                    // 填充图像容器定义内容
+                                                    foreach (var key in interfaceImgBox.Attr.Keys) {
+                                                        if (key != "tag-name")
+                                                            imgBox.Attr[key] = interfaceImgBox.Attr[key];
                                                     }
                                                     var img = docx.CreateElement("img");
                                                     imgBox.Children.Add(img);
@@ -844,6 +993,10 @@ namespace controller {
                                                     // 填充图像定义内容
                                                     foreach (var key in xmlInterfaceImg.Attr.Keys) {
                                                         img.Attr[key] = xmlInterfaceImg.Attr[key];
+                                                    }
+                                                    // 填充图像定义内容
+                                                    foreach (var key in interfaceImg.Attr.Keys) {
+                                                        img.Attr[key] = interfaceImg.Attr[key];
                                                     }
                                                     break;
                                                 #endregion
@@ -859,12 +1012,23 @@ namespace controller {
                                                         xmlInterfaceCheck.Attr["class"] = "x-check";
                                                         needSave = true;
                                                     }
-                                                    var checkBox = docx.CreateElement(xmlInterfaceCheck.Attr["tag-name"]);
+                                                    // 读取自定义配置
+                                                    var interfaceCheck = xmlInterface["check"];
+                                                    if (interfaceCheck == null) interfaceCheck = xmlInterface.AddNode("check");
+                                                    // 定义标签
+                                                    string checkBoxTagName = xmlInterfaceCheck.Attr["tag-name"];
+                                                    if (interfaceCheck.Attr.ContainsKey("tag-name")) checkBoxTagName = interfaceCheck.Attr["tag-name"];
+                                                    var checkBox = docx.CreateElement(checkBoxTagName);
                                                     td.Children.Add(checkBox);
                                                     // 填充图像容器定义内容
                                                     foreach (var key in xmlInterfaceCheck.Attr.Keys) {
                                                         if (key != "tag-name")
                                                             checkBox.Attr[key] = xmlInterfaceCheck.Attr[key];
+                                                    }
+                                                    // 填充图像容器定义内容
+                                                    foreach (var key in interfaceCheck.Attr.Keys) {
+                                                        if (key != "tag-name")
+                                                            checkBox.Attr[key] = interfaceCheck.Attr[key];
                                                     }
                                                     // 定义超链接
                                                     var checkLink = docx.CreateElement("a");
@@ -897,7 +1061,9 @@ namespace controller {
                                                     td.Children.Add(input);
                                                     input.Attr["name"] = $"{fldName}";
                                                     input.Attr["type"] = "text";
+                                                    input.Attr["style"] = $"width:{fldWidth};";
                                                     input.Attr["v-model"] = $"row.{fldName}";
+                                                    input.Attr["v-on:blur"] = $"onCellEdit($event,'{fldName}',row)";
                                                     break;
                                                 #endregion
                                                 // 呈现为自定义HTML
@@ -911,6 +1077,14 @@ namespace controller {
                                                 default:
                                                     throw new Exception("不支持的字段呈现类型");
                                             }
+                                            #endregion
+                                            #region [=====处理统计行=====]
+                                            if (hasStatistics) {
+                                                var tdStatistics = docx.CreateElement("td");
+                                                trStatistics.Children.Add(tdStatistics);
+                                                tdStatistics.Attr["v-html"] = $"statistics.{fldName}";
+                                            }
+                                            #endregion
                                         }
                                     }
 
@@ -920,20 +1094,9 @@ namespace controller {
                                     #region [=====生成表单HTML=====]
                                     // 界面定义节点
                                     xmlTable = xormDoc["table"];
-                                    //// 界面定义节点
-                                    //xmlInterface = xmlTable["interface"];
-                                    //// vue绑定节点
-                                    //var xmlInterfaceLine = xmlInterface["line"];
-                                    //// 行操作节点
-                                    //var xmlInterfaceTitle = xmlInterface["title"];
-                                    //// 单元格操作节点
-                                    //var xmlInterfaceContent = xmlInterface["content"];
-                                    //// 勾选框操作节点
-                                    //xmlInterfaceCheck = xmlInterface["check"];
-                                    //// 图像控件操作节点
-                                    //xmlInterfaceImg = xmlInterface["img"];
-                                    //// 图像控件操作操作条
-                                    //var xmlInterfaceImgBar = xmlInterfaceImg?["bar"];
+                                    // 界面定义节点
+                                    xmlInterface = xmlTable["interface"];
+                                    if (xmlInterface == null) xmlInterface = xmlTable.AddNode("interface");
                                     // 字段定义节点
                                     xmlFields = xmlTable["fields"];
                                     // 遍历字段
@@ -945,6 +1108,7 @@ namespace controller {
                                         // 字段类型不为none时，才有输出
                                         if (fldType != "none") {
                                             string fldModel = xmlField.Attr["model"];
+                                            #region [=====处理line组件相关内容=====]
                                             // 定义line呈现
                                             var xmlInterfaceLine = formGroup["line"];
                                             if (xmlInterfaceLine == null) {
@@ -954,9 +1118,32 @@ namespace controller {
                                                 xmlInterfaceLine.Attr["class"] = "x-line";
                                                 needSave = true;
                                             }
+                                            // 读取自定义配置
+                                            var interfaceLine = xmlInterface["line"];
+                                            if (interfaceLine == null) interfaceLine = xmlInterface.AddNode("line");
                                             // 处理行
-                                            var eleLine = docx.CreateElement(xmlInterfaceLine.Attr["tag-name"]);
+                                            string eleLineTagName = xmlInterfaceLine.Attr["tag-name"];
+                                            if (interfaceLine.Attr.ContainsKey("tag-name")) eleLineTagName = interfaceLine.Attr["tag-name"];
+                                            var eleLine = docx.CreateElement(eleLineTagName);
                                             docx.Nodes.Add(eleLine);
+                                            // 填充line定义内容
+                                            foreach (var key in xmlInterfaceLine.Attr.Keys) {
+                                                if (key != "tag-name")
+                                                    eleLine.Attr[key] = xmlInterfaceLine.Attr[key];
+                                            }
+                                            // 填充line定义内容
+                                            foreach (var key in interfaceLine.Attr.Keys) {
+                                                if (key != "tag-name")
+                                                    eleLine.Attr[key] = interfaceLine.Attr[key];
+                                            }
+                                            // 填充专用的样式信息
+                                            if (eleLine.Attr["class"].IsNoneOrNull()) {
+                                                eleLine.Attr["class"] = $"xform-line-{fldName}";
+                                            } else {
+                                                eleLine.Attr["class"] += $" xform-line-{fldName}";
+                                            }
+                                            #endregion
+                                            #region [=====处理liner组件相关内容=====]
                                             // 定义liner呈现
                                             var xmlInterfaceLiner = formGroup["liner"];
                                             if (xmlInterfaceLiner == null) {
@@ -966,24 +1153,23 @@ namespace controller {
                                                 xmlInterfaceLiner.Attr["class"] = "x-liner";
                                                 needSave = true;
                                             }
-                                            // 填充line定义内容
-                                            foreach (var key in xmlInterfaceLine.Attr.Keys) {
-                                                if (key != "tag-name")
-                                                    eleLine.Attr[key] = xmlInterfaceLine.Attr[key];
-                                            }
-                                            // 填充专用的样式信息
-                                            if (eleLine.Attr["class"].IsNoneOrNull()) {
-                                                eleLine.Attr["class"] = $"xform-line-{fldName}";
-                                            } else {
-                                                eleLine.Attr["class"] += $" xform-line-{fldName}";
-                                            }
+                                            // 读取自定义配置
+                                            var interfaceLiner = xmlInterface["liner"];
+                                            if (interfaceLiner == null) interfaceLiner = xmlInterface.AddNode("liner");
                                             // 处理行伴随
-                                            var eleLiner = docx.CreateElement(xmlInterfaceLiner.Attr["tag-name"]);
+                                            string eleLinerTagName = xmlInterfaceLiner.Attr["tag-name"];
+                                            if (interfaceLiner.Attr.ContainsKey("tag-name")) eleLinerTagName = interfaceLiner.Attr["tag-name"];
+                                            var eleLiner = docx.CreateElement(eleLinerTagName);
                                             docx.Nodes.Add(eleLiner);
                                             // 填充liner定义内容
                                             foreach (var key in xmlInterfaceLiner.Attr.Keys) {
                                                 if (key != "tag-name")
                                                     eleLiner.Attr[key] = xmlInterfaceLiner.Attr[key];
+                                            }
+                                            // 填充liner定义内容
+                                            foreach (var key in interfaceLiner.Attr.Keys) {
+                                                if (key != "tag-name")
+                                                    eleLiner.Attr[key] = interfaceLiner.Attr[key];
                                             }
                                             // 填充专用的样式信息
                                             if (eleLiner.Attr["class"].IsNoneOrNull()) {
@@ -991,6 +1177,8 @@ namespace controller {
                                             } else {
                                                 eleLiner.Attr["class"] += $" xform-liner-{fldName}";
                                             }
+                                            #endregion
+                                            #region [=====处理title组件相关内容=====]
                                             // 定义title呈现
                                             var xmlInterfaceTitle = formGroup["title"];
                                             if (xmlInterfaceTitle == null) {
@@ -1000,13 +1188,23 @@ namespace controller {
                                                 xmlInterfaceTitle.Attr["class"] = "x-title";
                                                 needSave = true;
                                             }
+                                            // 读取自定义配置
+                                            var interfaceTitle = xmlInterface["title"];
+                                            if (interfaceTitle == null) interfaceTitle = xmlInterface.AddNode("title");
                                             // 处理标题
-                                            var eleTitle = docx.CreateElement(xmlInterfaceTitle.Attr["tag-name"]);
+                                            string eleTitleTagName = xmlInterfaceTitle.Attr["tag-name"];
+                                            if (interfaceTitle.Attr.ContainsKey("tag-name")) eleTitleTagName = interfaceTitle.Attr["tag-name"];
+                                            var eleTitle = docx.CreateElement(eleTitleTagName);
                                             eleLine.Children.Add(eleTitle);
                                             // 填充line定义内容
                                             foreach (var key in xmlInterfaceTitle.Attr.Keys) {
                                                 if (key != "tag-name")
                                                     eleTitle.Attr[key] = xmlInterfaceTitle.Attr[key];
+                                            }
+                                            // 填充line定义内容
+                                            foreach (var key in interfaceTitle.Attr.Keys) {
+                                                if (key != "tag-name")
+                                                    eleTitle.Attr[key] = interfaceTitle.Attr[key];
                                             }
                                             // 填充专用的样式信息
                                             if (eleTitle.Attr["class"].IsNoneOrNull()) {
@@ -1019,6 +1217,8 @@ namespace controller {
                                             } else {
                                                 eleTitle.InnerHTML = fldTitle;
                                             }
+                                            #endregion
+                                            #region [=====处理content组件相关内容=====]
                                             // 定义content呈现
                                             var xmlInterfaceContent = formGroup["content"];
                                             if (xmlInterfaceContent == null) {
@@ -1028,13 +1228,23 @@ namespace controller {
                                                 xmlInterfaceContent.Attr["class"] = "x-content";
                                                 needSave = true;
                                             }
+                                            // 读取自定义配置
+                                            var interfaceContent = xmlInterface["content"];
+                                            if (interfaceContent == null) interfaceContent = xmlInterface.AddNode("content");
                                             // 处理内容
-                                            var eleContent = docx.CreateElement(xmlInterfaceContent.Attr["tag-name"]);
+                                            string eleContentTagName = xmlInterfaceContent.Attr["tag-name"];
+                                            if (interfaceContent.Attr.ContainsKey("tag-name")) eleContentTagName = interfaceContent.Attr["tag-name"];
+                                            var eleContent = docx.CreateElement(eleContentTagName);
                                             eleLine.Children.Add(eleContent);
                                             // 填充line定义内容
                                             foreach (var key in xmlInterfaceContent.Attr.Keys) {
                                                 if (key != "tag-name")
                                                     eleContent.Attr[key] = xmlInterfaceContent.Attr[key];
+                                            }
+                                            // 填充line定义内容
+                                            foreach (var key in interfaceContent.Attr.Keys) {
+                                                if (key != "tag-name")
+                                                    eleContent.Attr[key] = interfaceContent.Attr[key];
                                             }
                                             // 填充专用的样式信息
                                             if (eleContent.Attr["class"].IsNoneOrNull()) {
@@ -1042,6 +1252,7 @@ namespace controller {
                                             } else {
                                                 eleContent.Attr["class"] += $" xform-content-{fldName}";
                                             }
+                                            #endregion
                                             switch (fldType) {
                                                 // 不呈现
                                                 case "none": break;
@@ -1112,12 +1323,23 @@ namespace controller {
                                                         xmlInterfaceCheck.Attr["class"] = "x-check";
                                                         needSave = true;
                                                     }
-                                                    var checkBox = docx.CreateElement(xmlInterfaceCheck.Attr["tag-name"]);
+                                                    // 读取自定义配置
+                                                    var interfaceCheck = xmlInterface["check"];
+                                                    if (interfaceCheck == null) interfaceCheck = xmlInterface.AddNode("check");
+                                                    // 定义标签
+                                                    string checkBoxTagName = xmlInterfaceCheck.Attr["tag-name"];
+                                                    if (interfaceCheck.Attr.ContainsKey("tag-name")) checkBoxTagName = interfaceCheck.Attr["tag-name"];
+                                                    var checkBox = docx.CreateElement(checkBoxTagName);
                                                     eleContent.Children.Add(checkBox);
                                                     // 填充图像容器定义内容
                                                     foreach (var key in xmlInterfaceCheck.Attr.Keys) {
                                                         if (key != "tag-name")
                                                             checkBox.Attr[key] = xmlInterfaceCheck.Attr[key];
+                                                    }
+                                                    // 填充图像容器定义内容
+                                                    foreach (var key in interfaceCheck.Attr.Keys) {
+                                                        if (key != "tag-name")
+                                                            checkBox.Attr[key] = interfaceCheck.Attr[key];
                                                     }
                                                     // 定义超链接
                                                     var checkLink = docx.CreateElement("a");
@@ -1145,13 +1367,24 @@ namespace controller {
                                                         formDay.Attr["class"] = "x-day-picker";
                                                         needSave = true;
                                                     }
-                                                    var dayBox = docx.CreateElement(formDay.Attr["tag-name"]);
+                                                    // 读取自定义配置
+                                                    var interfaceDay = xmlInterface["day-picker"];
+                                                    if (interfaceDay == null) interfaceDay = xmlInterface.AddNode("day-picker");
+                                                    // 定义标签
+                                                    string dayBoxTagName = formDay.Attr["tag-name"];
+                                                    if (interfaceDay.Attr.ContainsKey("tag-name")) dayBoxTagName = interfaceDay.Attr["tag-name"];
+                                                    var dayBox = docx.CreateElement(dayBoxTagName);
                                                     eleContent.Children.Add(dayBox);
                                                     dayBox.Attr["style"] = $"width:{fldWidth};";
                                                     // 填充图像容器定义内容
                                                     foreach (var key in formDay.Attr.Keys) {
                                                         if (key != "tag-name")
                                                             dayBox.Attr[key] = formDay.Attr[key];
+                                                    }
+                                                    // 填充图像容器定义内容
+                                                    foreach (var key in interfaceDay.Attr.Keys) {
+                                                        if (key != "tag-name")
+                                                            dayBox.Attr[key] = interfaceDay.Attr[key];
                                                     }
                                                     // 定义超链接
                                                     var dayLink = docx.CreateElement("a");
@@ -1180,13 +1413,24 @@ namespace controller {
                                                         formPicker.Attr["class"] = "x-picker";
                                                         needSave = true;
                                                     }
-                                                    var pickerBox = docx.CreateElement(formPicker.Attr["tag-name"]);
+                                                    // 读取自定义配置
+                                                    var interfacePicker = xmlInterface["picker"];
+                                                    if (interfacePicker == null) interfacePicker = xmlInterface.AddNode("picker");
+                                                    // 定义标签
+                                                    string pickerBoxTagName = formPicker.Attr["tag-name"];
+                                                    if (interfacePicker.Attr.ContainsKey("tag-name")) pickerBoxTagName = interfacePicker.Attr["tag-name"];
+                                                    var pickerBox = docx.CreateElement(pickerBoxTagName);
                                                     eleContent.Children.Add(pickerBox);
                                                     pickerBox.Attr["style"] = $"width:{fldWidth};";
                                                     // 填充图像容器定义内容
                                                     foreach (var key in formPicker.Attr.Keys) {
                                                         if (key != "tag-name")
                                                             pickerBox.Attr[key] = formPicker.Attr[key];
+                                                    }
+                                                    // 填充图像容器定义内容
+                                                    foreach (var key in interfacePicker.Attr.Keys) {
+                                                        if (key != "tag-name")
+                                                            pickerBox.Attr[key] = interfacePicker.Attr[key];
                                                     }
                                                     // 定义超链接
                                                     var pickerLink = docx.CreateElement("a");
@@ -1208,12 +1452,23 @@ namespace controller {
                                                         xmlInterfaceImg.Attr["class"] = "x-img";
                                                         needSave = true;
                                                     }
-                                                    var imgBox = docx.CreateElement(xmlInterfaceImg.Attr["tag-name"]);
+                                                    // 读取自定义配置
+                                                    var interfaceImg = xmlInterface["img"];
+                                                    if (interfaceImg == null) interfaceImg = xmlInterface.AddNode("img");
+                                                    // 定义标签
+                                                    string imgBoxTagName = xmlInterfaceImg.Attr["tag-name"];
+                                                    if (interfaceImg.Attr.ContainsKey("tag-name")) imgBoxTagName = interfaceImg.Attr["tag-name"];
+                                                    var imgBox = docx.CreateElement(imgBoxTagName);
                                                     eleContent.Children.Add(imgBox);
                                                     // 填充图像容器定义内容
                                                     foreach (var key in xmlInterfaceImg.Attr.Keys) {
                                                         if (key != "tag-name")
                                                             imgBox.Attr[key] = xmlInterfaceImg.Attr[key];
+                                                    }
+                                                    // 填充图像容器定义内容
+                                                    foreach (var key in interfaceImg.Attr.Keys) {
+                                                        if (key != "tag-name")
+                                                            imgBox.Attr[key] = interfaceImg.Attr[key];
                                                     }
                                                     // 定义图片回显
                                                     var imgEle = docx.CreateElement("img");

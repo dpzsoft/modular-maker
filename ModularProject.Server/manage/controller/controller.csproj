@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="dpz3.Modular" Version="2.2.2003.29" />
+    <PackageReference Include="dpz3.Modular" Version="2.3.2004.32" />
     <PackageReference Include="dpz3.User" Version="1.0.1911.3" />
   </ItemGroup>
 
